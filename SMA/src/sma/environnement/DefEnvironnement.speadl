@@ -1,0 +1,45 @@
+import sma.common.services.interfaces.IAffichage;
+import sma.environnement.services.interfaces.IDepot;
+import sma.environnement.services.interfaces.IInteraction
+import sma.environnement.services.interfaces.IPerception
+import compCommon.Zieux
+import sma.environnement.services.interfaces.IEnvVisualisation
+
+namespace compEnvironnement {
+	
+	component Nid {
+		provides dropService : IDepot
+	}
+	
+	component SuperComposantAnonyme {
+		provides interactionService : IInteraction
+		provides perceptionService : IPerception
+		provides visualisationService : IEnvVisualisation
+		requires depotRougeService : IDepot
+		requires depotVertService : IDepot
+		requires depotBleuService : IDepot
+		requires affichageService : IAffichage
+	}
+
+	component Environnement {
+		provides visualisationService : IEnvVisualisation
+			= superCompAnonyme.visualisationService
+			
+		provides interactionService : IInteraction
+			= superCompAnonyme.interactionService
+			
+		provides perceptionService : IPerception
+			= superCompAnonyme.perceptionService
+			
+		part zieux : Zieux
+		part nidRouge : Nid
+		part nidBleu : Nid
+		part nidVert : Nid
+		part superCompAnonyme : SuperComposantAnonyme {
+			bind affichageService to zieux.affichageService
+			bind depotRougeService to nidRouge.dropService
+			bind depotVertService to nidVert.dropService
+			bind depotBleuService to nidBleu.dropService
+		}
+	}
+}

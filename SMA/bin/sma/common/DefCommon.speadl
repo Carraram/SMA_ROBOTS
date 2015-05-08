@@ -1,0 +1,7 @@
+import sma.common.services.interfaces.IAffichage
+
+namespace compCommon {
+	component Zieux {
+		provides affichageService : IAffichage
+	}
+}
