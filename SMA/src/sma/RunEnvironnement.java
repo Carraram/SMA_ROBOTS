@@ -9,6 +9,9 @@ import sma.common.pojo.PositionInvalideException;
 import sma.environnement.pojo.BoiteCouleur;
 import sma.environnement.services.impl.EnvironnementImpl;
 
+/**
+ * Lancement de l'environnement
+ */
 public class RunEnvironnement {
 
     public static void main(String[] args) {

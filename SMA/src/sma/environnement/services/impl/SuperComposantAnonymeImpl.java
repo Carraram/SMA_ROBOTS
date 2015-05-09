@@ -1,5 +1,6 @@
 package sma.environnement.services.impl;
 
+import java.io.IOException;
 import java.util.Map;
 
 import sma.agents.pojo.EtatRobot;
@@ -14,6 +15,7 @@ import sma.environnement.services.interfaces.IInteraction;
 import sma.environnement.services.interfaces.IPerception;
 import compEnvironnement.Nid;
 import compEnvironnement.SuperComposantAnonyme;
+import utils.PropertyFileReader;
 
 public class SuperComposantAnonymeImpl extends SuperComposantAnonyme {
 
@@ -25,8 +27,24 @@ public class SuperComposantAnonymeImpl extends SuperComposantAnonyme {
     public SuperComposantAnonymeImpl(Nid nidRouge, Nid nidBleu, Nid nidVert) {
         System.out.println("\r\n***** La Genèse - Bible des SMA V0.1 *****\r\n");
         System.out.println("Au commencement, le Super Composant Anonyme créa l'environnement...");
-        // TODO Remplacer valeurs EtatEnvironnement par un truc paramétrable
-        environnement = new EtatEnvironnement(0, 50, 40);
+        // Configuration de l'environnement
+        int[] configurationEnv = new int[3];
+        try {
+            PropertyFileReader config = new PropertyFileReader("config/environnementConfig.properties");
+            configurationEnv[0] = config.getProprieteInt("nbBoitesInit");
+            configurationEnv[1] = config.getProprieteInt("nbColonnesGrille");
+            configurationEnv[2] = config.getProprieteInt("nbLignesGrille");
+        } catch (IOException | NumberFormatException ex) {
+            System.err.println("Une erreur est survenue lors de la lecture du fichier de configuration de l'environnement");
+            System.err.println("Utilisation de la configuration par défaut");
+            ex.printStackTrace();
+            // Valeurs par défaut en cas d'échec de la lecture du fichier de configuration
+            configurationEnv[0] = 0;
+            configurationEnv[1] = 50;
+            configurationEnv[2] = 50;
+        }
+        environnement = new EtatEnvironnement(configurationEnv[0], configurationEnv[1], configurationEnv[2]);
+        
         // TODO Créer les nids à équidistance en fonction de la taille de la grille
         try {
             System.out.println("Les trois jours qui suivirent, le Super Composant Anonyme créa les nids...");
@@ -36,8 +54,10 @@ public class SuperComposantAnonymeImpl extends SuperComposantAnonyme {
         } catch (CaseNonVideException | PositionInvalideException e) {
             e.printStackTrace();
         }
+        
         System.out.println("Le Cinquième jour, le Super Composant Anonyme créa les boites...");
         // TODO Placer les boites de départ
+        
         System.out.println("Le Sixième jour, le Super Composant Anonyme créa le générateur de boites...");
         // TODO Lancer le générateur de boites
         System.out.println("Le Septième Jour, le Super Composant Anonyme se reposa...");
