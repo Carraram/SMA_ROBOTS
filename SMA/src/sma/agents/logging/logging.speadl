@@ -1,0 +1,24 @@
+import sma.agents.logging.interfaces.ICreateLogger
+import sma.agents.logging.interfaces.ILog
+
+namespace agent.logging {
+	
+	ecosystem Logging {
+		
+		provides create: ICreateLogger
+		
+		species Logger(name: String) {
+			provides log: ILog
+		}
+	}
+	
+	ecosystem LoggingTest {
+		
+		part log: Logging
+		
+		species LoggerTest(name: String) {
+			provides log: ILog = s.log
+			use s: log.Logger(name)
+		}
+	}
+}

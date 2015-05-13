@@ -1,0 +1,37 @@
+import sma.agents.ecoRobotLogged.interfaces.IBankManage
+import sma.agents.logging.interfaces.ILog
+import agent.ecoRobot.EcoRobot
+import agent.logging.Logging
+import sma.common.pojo.Position
+import sma.common.pojo.Couleur
+
+namespace agent.ecoRobotLogged {
+	
+	ecosystem EcoRobotLogged {
+		
+//		provides manage: IBankManage
+		provides elog: ILog
+		
+		part l: Logging
+		
+		part b: EcoRobot {
+			bind elog to elog
+		}
+		
+//		part gui: BankGUI {
+//			bind manage to manage
+//		}
+		
+		species RobotLogged(name:String, maxEnergie: float, couleur: Couleur, positionInitiale: Position) {
+			
+			use ll: l.Logger(name)
+			use ba: b.Robot(maxEnergie, couleur, positionInitiale) {
+				bind log to ll.log
+			}
+//			use ga: gui.AccountGUI {
+//				bind operations to ba.operations
+//				bind status to ba.status
+//			}
+		}
+	}
+}

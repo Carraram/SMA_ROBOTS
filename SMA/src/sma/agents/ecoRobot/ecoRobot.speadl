@@ -1,0 +1,21 @@
+import sma.agents.ecoRobot.interfaces.IRobotOperations
+import sma.agents.logging.interfaces.ILog
+import sma.agents.ecoRobot.interfaces.IRobotStatus
+import sma.common.pojo.Position
+import sma.common.pojo.Couleur
+
+namespace agent.ecoRobot {
+	
+	ecosystem EcoRobot {
+		
+		requires elog: ILog
+		
+		species Robot(maxEnergie: float, couleur: Couleur, positionInitiale: Position) {
+			
+			provides operations: IRobotOperations
+			provides status: IRobotStatus
+			
+			requires log: ILog
+		}
+	}
+}
