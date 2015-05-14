@@ -24,16 +24,16 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      */
     private EnvironmentState environment;
     
-    public EnvironmentManagerImpl(Nest nidRouge, Nest nidBleu, Nest nidVert) {
+    public EnvironmentManagerImpl(Nest redNest, Nest blueNest, Nest greenNest) {
         System.out.println("\r\n***** La Genèse - Bible des SMA V0.1 *****\r\n");
         System.out.println("Au commencement, le Super Composant Anonyme créa l'environnement...");
         // Configuration de l'environnement
         int[] configurationEnv = new int[3];
         try {
-            PropertyFileReader config = new PropertyFileReader("config/environnementConfig.properties");
-            configurationEnv[0] = config.getPropertyAsInt("nbBoitesInit");
-            configurationEnv[1] = config.getPropertyAsInt("nbColonnesGrille");
-            configurationEnv[2] = config.getPropertyAsInt("nbLignesGrille");
+            PropertyFileReader config = new PropertyFileReader("config/environmentConfig.properties");
+            configurationEnv[0] = config.getPropertyAsInt("initNumberOfBoxes");
+            configurationEnv[1] = config.getPropertyAsInt("gridColumns");
+            configurationEnv[2] = config.getPropertyAsInt("gridLines");
         } catch (IOException | NumberFormatException ex) {
             System.err.println("Une erreur est survenue lors de la lecture du fichier de configuration de l'environnement");
             System.err.println("Utilisation de la configuration par défaut");
@@ -48,9 +48,9 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         // TODO Créer les nids à équidistance en fonction de la taille de la grille
         try {
             System.out.println("Les trois jours qui suivirent, le Super Composant Anonyme créa les nids...");
-            environment.createNest(nidRouge, Colors.RED, new Position(0,0));
-            environment.createNest(nidBleu, Colors.BLUE, new Position(1,1));
-            environment.createNest(nidVert, Colors.GREEN, new Position(2,2));
+            environment.createNest(redNest, Colors.RED, new Position(0,0));
+            environment.createNest(blueNest, Colors.BLUE, new Position(1,1));
+            environment.createNest(greenNest, Colors.GREEN, new Position(2,2));
         } catch (NonEmptyGridBoxException | InvalidPositionException e) {
             e.printStackTrace();
         }
