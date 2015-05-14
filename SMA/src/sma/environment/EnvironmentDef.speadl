@@ -1,0 +1,45 @@
+import sma.common.services.interfaces.IDisplay;
+import sma.environment.services.interfaces.IStore;
+import sma.environment.services.interfaces.IInteraction
+import sma.environment.services.interfaces.IPerception
+import components.common.Viewer
+import sma.environment.services.interfaces.IEnvironmentViewing
+
+namespace components.environment {
+	
+	component Nest {
+		provides dropService : IStore
+	}
+	
+	component EnvironmentManager {
+		provides interactionService : IInteraction
+		provides perceptionService : IPerception
+		provides viewingService : IEnvironmentViewing
+		requires dropRedService : IStore
+		requires dropGreenService : IStore
+		requires dropBlueService : IStore
+		requires displayService : IDisplay
+	}
+
+	component Environment {
+		provides visualisationService : IEnvironmentViewing
+			= environmentManager.viewingService
+			
+		provides interactionService : IInteraction
+			= environmentManager.interactionService
+			
+		provides perceptionService : IPerception
+			= environmentManager.perceptionService
+			
+		part viewer : Viewer
+		part redNest : Nest
+		part blueNest : Nest
+		part greenNest : Nest
+		part environmentManager : EnvironmentManager {
+			bind displayService to viewer.displayService
+			bind dropRedService to redNest.dropService
+			bind dropGreenService to greenNest.dropService
+			bind dropBlueService to blueNest.dropService
+		}
+	}
+}

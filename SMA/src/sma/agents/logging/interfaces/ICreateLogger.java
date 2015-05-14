@@ -1,6 +1,6 @@
 package sma.agents.logging.interfaces;
 
-import agent.logging.Logging;
+import components.agent.logging.Logging;
 
 public interface ICreateLogger {
 

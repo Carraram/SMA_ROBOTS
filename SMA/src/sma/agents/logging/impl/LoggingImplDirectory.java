@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 import sma.agents.logging.interfaces.ICreateLogger;
 import sma.agents.logging.interfaces.ILog;
-import agent.logging.Logging;
+import components.agent.logging.Logging;
 
 public class LoggingImplDirectory extends Logging {
 

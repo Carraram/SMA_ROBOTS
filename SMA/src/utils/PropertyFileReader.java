@@ -21,47 +21,47 @@ public class PropertyFileReader {
      
     /**
      * Crée un PropertyFileReader et ouvre un fichier properties
-     * @param nomFichier Nom du fichier properties
+     * @param filename Nom du fichier properties
      * @throws IOException Erreur lors de la lecture du fichier
      */
-    public PropertyFileReader(String nomFichier) throws IOException {
+    public PropertyFileReader(String filename) throws IOException {
         properties = new Properties();
-        ouvrirFichier(nomFichier);
+        openFile(filename);
     }
     
     /**
      * Ouvre un fichier properties
-     * @param nomFichier Nom du fichier properties
+     * @param filename Nom du fichier properties
      * @throws IOException Erreur lors de la lecture du fichier
      */
-    public void ouvrirFichier(String nomFichier) throws IOException {
-        assert nomFichier != null;
-        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(nomFichier);
+    public void openFile(String filename) throws IOException {
+        assert filename != null;
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream(filename);
         if (inputStream != null) {
             properties.load(inputStream);
         } else {
-            throw new FileNotFoundException("Le fichier de propriétés " + nomFichier + " n'a pas été trouvé dans le classpath");
+            throw new FileNotFoundException("Le fichier de propriétés " + filename + " n'a pas été trouvé dans le classpath");
         }
     }
     
     /**
      * Renvoie la valeur d'une propriété de nom donné sous forme de chaîne de caractères
-     * @param nomPropriete Nom de la propriété
+     * @param propertyName Nom de la propriété
      * @return Valeur de la propriété
      */
-    public String getProprieteString(String nomPropriete) {
+    public String getPropertyAsString(String propertyName) {
         assert properties != null;
-        return properties.getProperty(nomPropriete);
+        return properties.getProperty(propertyName);
     }
     
     /**
      * Renvoie la valeur d'une propriété sous forme d'entier
-     * @param nomPropriete Nom de la propriété
+     * @param propertyName Nom de la propriété
      * @return Valeur entière de la propriété
      * @throws NumberFormatException La valeur de la propriété ne correspond pas à un entier
      */
-    public int getProprieteInt(String nomPropriete) throws NumberFormatException {
+    public int getPropertyAsInt(String propertyName) throws NumberFormatException {
         assert properties != null;
-        return Integer.parseInt(properties.getProperty(nomPropriete));
+        return Integer.parseInt(properties.getProperty(propertyName));
     }
 }

@@ -1,0 +1,7 @@
+import sma.common.services.interfaces.IDisplay
+
+namespace components.common {
+	component Viewer {
+		provides displayService : IDisplay
+	}
+}

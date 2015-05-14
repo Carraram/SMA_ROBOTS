@@ -1,6 +1,6 @@
 package sma.agents.ecoRobot.interfaces;
 
-import sma.agents.pojo.EtatRobot;
+import sma.agents.pojo.RobotState;
 
 public interface IRobotStatus {
 
@@ -8,6 +8,6 @@ public interface IRobotStatus {
 	
 	public String getOwner();
 	
-	public EtatRobot getEtatRobot();
+	public RobotState getRobotState();
 	
 }

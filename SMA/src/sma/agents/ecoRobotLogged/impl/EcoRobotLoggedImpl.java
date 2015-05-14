@@ -5,11 +5,11 @@ import java.io.File;
 import sma.agents.ecoRobot.impl.EcoRobotImpl;
 import sma.agents.logging.impl.LoggingImplDirectory;
 import sma.agents.logging.interfaces.ILog;
-import sma.common.pojo.Couleur;
+import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
-import agent.ecoRobot.EcoRobot;
-import agent.ecoRobotLogged.EcoRobotLogged;
-import agent.logging.Logging;
+import components.agent.ecoRobot.EcoRobot;
+import components.agent.ecoRobotLogged.EcoRobotLogged;
+import components.agent.logging.Logging;
 
 public class EcoRobotLoggedImpl extends EcoRobotLogged {
 
@@ -30,7 +30,7 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 	}
 	
 	@Override
-	protected RobotLogged make_RobotLogged(String owner, final float maxEnergie, final Couleur couleur, final Position positionInitiale) {
+	protected RobotLogged make_RobotLogged(String owner, final float maxEnergie, final Colors couleur, final Position positionInitiale) {
 		return new RobotLogged() {};
 	}
 	
