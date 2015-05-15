@@ -1,10 +1,20 @@
 package components.agent.ecoRobot;
 
+import components.agent.ecoRobot.Action;
+import components.agent.ecoRobot.Decision;
+import components.agent.ecoRobot.Perception;
+import components.environment.Environment;
+import sma.agents.ecoRobot.interfaces.IActionBuffer;
+import sma.agents.ecoRobot.interfaces.IActuators;
+import sma.agents.ecoRobot.interfaces.IExecute;
+import sma.agents.ecoRobot.interfaces.IKnowledge;
 import sma.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.agents.ecoRobot.interfaces.IRobotStatus;
 import sma.agents.logging.interfaces.ILog;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.environment.services.interfaces.IInteraction;
+import sma.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
 public abstract class EcoRobot {
@@ -84,9 +94,60 @@ public abstract class EcoRobot {
        * 
        */
       public IRobotStatus status();
+      
+      /**
+       * This can be called to access the provided port.
+       * 
+       */
+      public IActuators actuators();
+      
+      /**
+       * This can be called to access the provided port.
+       * 
+       */
+      public IPerception sensors();
+      
+      /**
+       * This can be called to access the provided port.
+       * 
+       */
+      public IKnowledge knowledge();
+      
+      /**
+       * This can be called to access the provided port.
+       * 
+       */
+      public IExecute execute();
     }
     
     public interface Parts {
+      /**
+       * This can be called by the implementation to access the part and its provided ports.
+       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+       * 
+       */
+      public Perception.Component perception();
+      
+      /**
+       * This can be called by the implementation to access the part and its provided ports.
+       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+       * 
+       */
+      public Decision.Component decision();
+      
+      /**
+       * This can be called by the implementation to access the part and its provided ports.
+       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+       * 
+       */
+      public Action.Component action();
+      
+      /**
+       * This can be called by the implementation to access the part and its provided ports.
+       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+       * 
+       */
+      public Environment.Component env();
     }
     
     public static class ComponentImpl implements EcoRobot.Robot.Component, EcoRobot.Robot.Parts {
@@ -95,12 +156,67 @@ public abstract class EcoRobot {
       private final EcoRobot.Robot implementation;
       
       public void start() {
+        assert this.perception != null: "This is a bug.";
+        ((Perception.ComponentImpl) this.perception).start();
+        assert this.decision != null: "This is a bug.";
+        ((Decision.ComponentImpl) this.decision).start();
+        assert this.action != null: "This is a bug.";
+        ((Action.ComponentImpl) this.action).start();
+        assert this.env != null: "This is a bug.";
+        ((Environment.ComponentImpl) this.env).start();
         this.implementation.start();
         this.implementation.started = true;
       }
       
-      protected void initParts() {
+      private void init_perception() {
+        assert this.perception == null: "This is a bug.";
+        assert this.implem_perception == null: "This is a bug.";
+        this.implem_perception = this.implementation.make_perception();
+        if (this.implem_perception == null) {
+        	throw new RuntimeException("make_perception() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+        this.perception = this.implem_perception._newComponent(new BridgeImpl_perception(), false);
         
+      }
+      
+      private void init_decision() {
+        assert this.decision == null: "This is a bug.";
+        assert this.implem_decision == null: "This is a bug.";
+        this.implem_decision = this.implementation.make_decision();
+        if (this.implem_decision == null) {
+        	throw new RuntimeException("make_decision() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+        this.decision = this.implem_decision._newComponent(new BridgeImpl_decision(), false);
+        
+      }
+      
+      private void init_action() {
+        assert this.action == null: "This is a bug.";
+        assert this.implem_action == null: "This is a bug.";
+        this.implem_action = this.implementation.make_action();
+        if (this.implem_action == null) {
+        	throw new RuntimeException("make_action() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+        this.action = this.implem_action._newComponent(new BridgeImpl_action(), false);
+        
+      }
+      
+      private void init_env() {
+        assert this.env == null: "This is a bug.";
+        assert this.implem_env == null: "This is a bug.";
+        this.implem_env = this.implementation.make_env();
+        if (this.implem_env == null) {
+        	throw new RuntimeException("make_env() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+        this.env = this.implem_env._newComponent(new BridgeImpl_env(), false);
+        
+      }
+      
+      protected void initParts() {
+        init_perception();
+        init_decision();
+        init_action();
+        init_env();
       }
       
       private void init_operations() {
@@ -119,9 +235,45 @@ public abstract class EcoRobot {
         }
       }
       
+      private void init_actuators() {
+        assert this.actuators == null: "This is a bug.";
+        this.actuators = this.implementation.make_actuators();
+        if (this.actuators == null) {
+        	throw new RuntimeException("make_actuators() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+      }
+      
+      private void init_sensors() {
+        assert this.sensors == null: "This is a bug.";
+        this.sensors = this.implementation.make_sensors();
+        if (this.sensors == null) {
+        	throw new RuntimeException("make_sensors() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+      }
+      
+      private void init_knowledge() {
+        assert this.knowledge == null: "This is a bug.";
+        this.knowledge = this.implementation.make_knowledge();
+        if (this.knowledge == null) {
+        	throw new RuntimeException("make_knowledge() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+      }
+      
+      private void init_execute() {
+        assert this.execute == null: "This is a bug.";
+        this.execute = this.implementation.make_execute();
+        if (this.execute == null) {
+        	throw new RuntimeException("make_execute() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
+        }
+      }
+      
       protected void initProvidedPorts() {
         init_operations();
         init_status();
+        init_actuators();
+        init_sensors();
+        init_knowledge();
+        init_execute();
       }
       
       public ComponentImpl(final EcoRobot.Robot implem, final EcoRobot.Robot.Requires b, final boolean doInits) {
@@ -150,6 +302,95 @@ public abstract class EcoRobot {
       
       public IRobotStatus status() {
         return this.status;
+      }
+      
+      private IActuators actuators;
+      
+      public IActuators actuators() {
+        return this.actuators;
+      }
+      
+      private IPerception sensors;
+      
+      public IPerception sensors() {
+        return this.sensors;
+      }
+      
+      private IKnowledge knowledge;
+      
+      public IKnowledge knowledge() {
+        return this.knowledge;
+      }
+      
+      private IExecute execute;
+      
+      public IExecute execute() {
+        return this.execute;
+      }
+      
+      private Perception.Component perception;
+      
+      private Perception implem_perception;
+      
+      private final class BridgeImpl_perception implements Perception.Requires {
+        public final IPerception sensors() {
+          return EcoRobot.Robot.ComponentImpl.this.sensors();
+        }
+        
+        public final IKnowledge knowledge() {
+          return EcoRobot.Robot.ComponentImpl.this.knowledge();
+        }
+      }
+      
+      public final Perception.Component perception() {
+        return this.perception;
+      }
+      
+      private Decision.Component decision;
+      
+      private Decision implem_decision;
+      
+      private final class BridgeImpl_decision implements Decision.Requires {
+        public final IKnowledge knowledge() {
+          return EcoRobot.Robot.ComponentImpl.this.knowledge();
+        }
+        
+        public final IActionBuffer actionBuffer() {
+          return EcoRobot.Robot.ComponentImpl.this.action().actionBuffer();
+        }
+      }
+      
+      public final Decision.Component decision() {
+        return this.decision;
+      }
+      
+      private Action.Component action;
+      
+      private Action implem_action;
+      
+      private final class BridgeImpl_action implements Action.Requires {
+        public final IActuators actuators() {
+          return EcoRobot.Robot.ComponentImpl.this.actuators();
+        }
+        
+        public final IInteraction envInteraction() {
+          return EcoRobot.Robot.ComponentImpl.this.env().interactionService();
+        }
+      }
+      
+      public final Action.Component action() {
+        return this.action;
+      }
+      
+      private Environment.Component env;
+      
+      private Environment implem_env;
+      
+      private final class BridgeImpl_env implements Environment.Requires {
+      }
+      
+      public final Environment.Component env() {
+        return this.env;
       }
     }
     
@@ -207,6 +448,34 @@ public abstract class EcoRobot {
     protected abstract IRobotStatus make_status();
     
     /**
+     * This should be overridden by the implementation to define the provided port.
+     * This will be called once during the construction of the component to initialize the port.
+     * 
+     */
+    protected abstract IActuators make_actuators();
+    
+    /**
+     * This should be overridden by the implementation to define the provided port.
+     * This will be called once during the construction of the component to initialize the port.
+     * 
+     */
+    protected abstract IPerception make_sensors();
+    
+    /**
+     * This should be overridden by the implementation to define the provided port.
+     * This will be called once during the construction of the component to initialize the port.
+     * 
+     */
+    protected abstract IKnowledge make_knowledge();
+    
+    /**
+     * This should be overridden by the implementation to define the provided port.
+     * This will be called once during the construction of the component to initialize the port.
+     * 
+     */
+    protected abstract IExecute make_execute();
+    
+    /**
      * This can be called by the implementation to access the required ports.
      * 
      */
@@ -229,6 +498,34 @@ public abstract class EcoRobot {
       }
       return this.selfComponent;
     }
+    
+    /**
+     * This should be overridden by the implementation to define how to create this sub-component.
+     * This will be called once during the construction of the component to initialize this sub-component.
+     * 
+     */
+    protected abstract Perception make_perception();
+    
+    /**
+     * This should be overridden by the implementation to define how to create this sub-component.
+     * This will be called once during the construction of the component to initialize this sub-component.
+     * 
+     */
+    protected abstract Decision make_decision();
+    
+    /**
+     * This should be overridden by the implementation to define how to create this sub-component.
+     * This will be called once during the construction of the component to initialize this sub-component.
+     * 
+     */
+    protected abstract Action make_action();
+    
+    /**
+     * This should be overridden by the implementation to define how to create this sub-component.
+     * This will be called once during the construction of the component to initialize this sub-component.
+     * 
+     */
+    protected abstract Environment make_env();
     
     /**
      * Not meant to be used to manually instantiate components (except for testing).
