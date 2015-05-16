@@ -49,14 +49,26 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         environment = new EnvironmentState(configurationEnv[0], configurationEnv[1], configurationEnv[2]);
         System.out.println("*** Environnement configuré");
         
-        // TODO Créer les nids à équidistance en fonction de la taille de la grille
         try {
             System.out.println("Placement des nids dans l'environnement...");
-            environment.createNest(redNest, Colors.RED, new Position(22,20));
-            environment.createNest(blueNest, Colors.BLUE, new Position(24,20));
-            environment.createNest(greenNest, Colors.GREEN, new Position(2,2));
+            // TODO Générer une position aléatoire pour le premier nid
+            Position initNestPosition = new Position(1,1);
+            /**
+             * TailleAretes = largeurGrille - 2*posX (sommets à équidistance
+             * des bords de la grille).
+             * Si la hauteur de la grille est insuffisante par rapport à cette
+             * taille, alors TailleAretes = hauteurGrille - posY
+             */
+            int sideLength = environment.getGridWidth() - (initNestPosition.getCoordX() * 2);
+            if (sideLength + initNestPosition.getCoordY() > environment.getGridHeight()) {
+                sideLength = environment.getGridHeight() - initNestPosition.getCoordY();
+            }
+            Position[] nestCoordinates = computeEquilateralTriangleCoordinates(initNestPosition, sideLength);
+            environment.createNest(redNest, Colors.RED, nestCoordinates[0]);
+            environment.createNest(blueNest, Colors.BLUE, nestCoordinates[1]);
+            environment.createNest(greenNest, Colors.GREEN, nestCoordinates[2]);
         } catch (NonEmptyGridBoxException | InvalidPositionException e) {
-            // TODO Placer les nids à un autre endroit (ne devrait pas arriver)
+            // Ne peut pas arriver
             e.printStackTrace();
         }
         System.out.println("*** Nids placés dans l'environnement");
@@ -156,6 +168,25 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
                 EnvironmentManagerImpl.this.requires().displayService().displayMessages(new String[] {etatNids, etatBoites});
             }
         };
+    }
+    
+    /**
+     * Calcule les coordonnées des sommets d'un triangle équilatéral
+     * @param leftBottom Sommet de départ pour le calcul
+     * @param sideLength Longueur d'un côté du triangle
+     * @return Coordonnées des sommets du triangle
+     */
+    private Position[] computeEquilateralTriangleCoordinates(Position leftBottom, int sideLength) {
+        Position[] coordinates = new Position[3];
+        int xStart = leftBottom.getCoordX();
+        int yStart = leftBottom.getCoordY();
+        double sin60MultBySide = Math.round((Math.sqrt(3)/2d) * sideLength);
+        Position rightBottom = new Position(xStart + sideLength, yStart);
+        Position top = new Position(xStart + sideLength/2, yStart + (int) sin60MultBySide);
+        coordinates[0] = leftBottom;
+        coordinates[1] = rightBottom;
+        coordinates[2] = top;
+        return coordinates;
     }
 
 }
