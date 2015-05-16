@@ -1,6 +1,7 @@
 package sma.environment.pojo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import components.environment.Nest;
@@ -120,13 +121,38 @@ public class EnvironmentState {
 	}
 	
 	/**
+     * Renvoie les éléments situés aux positions données
+     * @param positions Liste des positions
+     * @return Map liant les positions à l'objet qu'elles contiennent
+     */
+	public Map<Position, Object> getElementsForPositions(List<Position> positions) {
+	    return grid.getElementsForPositions(positions);
+	}
+	
+	/**
 	 * Indique si une position est valide dans la grille
 	 * @param position Position à vérifier
 	 * @return TRUE si la Position est contenue dans les limites de la grille, FALSE sinon
 	 */
-	private boolean isValidPosition(Position position) {
+	public boolean isValidPosition(Position position) {
 	    boolean coordXValide = position.getCoordX() >= 0 && position.getCoordX() <= gridHeight;
 	    boolean coordYValide = position.getCoordY() >= 0 && position.getCoordY() <= gridWidth;
 	    return coordXValide && coordYValide;
+	}
+	
+	/**
+	 * Renvoie la largeur de la grille (nombre de colonnes)
+	 * @return Largeur de la grille
+	 */
+	public int getGridWidth() {
+	    return gridWidth;
+	}
+	
+	/**
+	 * Renvoie la hauteur de la grille (nombre de lignes)
+	 * @return Hauteur de la grille
+	 */
+	public int getGridHeight() {
+	   return gridHeight; 
 	}
 }

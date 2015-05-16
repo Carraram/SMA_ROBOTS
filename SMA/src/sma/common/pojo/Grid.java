@@ -1,6 +1,7 @@
 package sma.common.pojo;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Grid {
@@ -51,5 +52,21 @@ public class Grid {
      */
     public Object getElement(Position position) {
         return gridElements.get(position);
+    }
+    
+    /**
+     * Renvoie les éléments situés aux positions données
+     * @param positions Liste des positions
+     * @return Map liant les positions à l'objet qu'elles contiennent
+     */
+    public Map<Position, Object> getElementsForPositions(List<Position> positions) {
+        Map<Position, Object> elements = new HashMap<Position, Object>();
+        for (Position current : positions) {
+            Object objectAtPosition = getElement(current);
+            if (objectAtPosition != null) {
+                elements.put(current, objectAtPosition);
+            }
+        }
+        return elements;
     }
 }

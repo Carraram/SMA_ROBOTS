@@ -4,6 +4,9 @@ import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Position;
 import sma.common.pojo.InvalidPositionException;
 
+/**
+ * Services d'interaction et de modification de l'environnement
+ */
 public interface IInteraction extends IStore {
     /**
      * Déplacement d'une case vers une de ses voisines
