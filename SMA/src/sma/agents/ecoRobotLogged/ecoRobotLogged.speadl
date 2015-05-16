@@ -1,37 +1,64 @@
+
 import sma.agents.ecoRobotLogged.interfaces.IBankManage
+
 import sma.agents.logging.interfaces.ILog
+
 import components.agent.ecoRobot.EcoRobot
+
 import components.agent.logging.Logging
+
 import sma.common.pojo.Position
+
 import sma.common.pojo.Colors
 
+import components.environment.Environment
+
+import sma.agents.ecoRobot.interfaces.IActuators
+
+import sma.agents.ecoRobot.interfaces.ISensors
+
+import sma.agents.ecoRobot.interfaces.IKnowledge
+
 namespace components.agent.ecoRobotLogged {
-	
+
 	ecosystem EcoRobotLogged {
-		
-//		provides manage: IBankManage
+		part env: Environment
+
+		//		provides manage: IBankManage
 		provides elog: ILog
-		
+
 		part l: Logging
-		
+
 		part b: EcoRobot {
 			bind elog to elog
 		}
-		
-//		part gui: BankGUI {
-//			bind manage to manage
-//		}
-		
-		species RobotLogged(name:String, maxEnergie: float, couleur: Colors, positionInitiale: Position) {
-			
+
+		//		part gui: BankGUI {
+		//			bind manage to manage
+		//		}
+		species RobotLogged(name: String, maxEnergie: float, couleur: Colors,
+		positionInitiale: Position) {
+
 			use ll: l.Logger(name)
 			use ba: b.Robot(maxEnergie, couleur, positionInitiale) {
 				bind log to ll.log
+				//				bind env to env
+
+				//				bind actuators to actuators
+				//				bind sensors to sensors
+				//				bind knowledge to knowledge
+
 			}
-//			use ga: gui.AccountGUI {
-//				bind operations to ba.operations
-//				bind status to ba.status
-//			}
+
+			//			provides actuators: IActuators
+			//			provides sensors: ISensors
+			//			provides knowledge: IKnowledge
+
+			//			use ga: gui.AccountGUI {
+			//				bind operations to ba.operations
+			//				bind status to ba.status
+			//			}
+
 		}
 	}
 }

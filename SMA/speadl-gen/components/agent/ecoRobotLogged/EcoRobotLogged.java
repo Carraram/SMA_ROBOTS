@@ -2,6 +2,7 @@ package components.agent.ecoRobotLogged;
 
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.logging.Logging;
+import components.environment.Environment;
 import sma.agents.logging.interfaces.ILog;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
@@ -28,6 +29,13 @@ public abstract class EcoRobotLogged {
      * It will be initialized after the required ports are initialized and before the provided ports are initialized.
      * 
      */
+    public Environment.Component env();
+    
+    /**
+     * This can be called by the implementation to access the part and its provided ports.
+     * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+     * 
+     */
     public Logging.Component l();
     
     /**
@@ -44,12 +52,25 @@ public abstract class EcoRobotLogged {
     private final EcoRobotLogged implementation;
     
     public void start() {
+      assert this.env != null: "This is a bug.";
+      ((Environment.ComponentImpl) this.env).start();
       assert this.l != null: "This is a bug.";
       ((Logging.ComponentImpl) this.l).start();
       assert this.b != null: "This is a bug.";
       ((EcoRobot.ComponentImpl) this.b).start();
       this.implementation.start();
       this.implementation.started = true;
+    }
+    
+    private void init_env() {
+      assert this.env == null: "This is a bug.";
+      assert this.implem_env == null: "This is a bug.";
+      this.implem_env = this.implementation.make_env();
+      if (this.implem_env == null) {
+      	throw new RuntimeException("make_env() in components.agent.ecoRobotLogged.EcoRobotLogged should not return null.");
+      }
+      this.env = this.implem_env._newComponent(new BridgeImpl_env(), false);
+      
     }
     
     private void init_l() {
@@ -75,6 +96,7 @@ public abstract class EcoRobotLogged {
     }
     
     protected void initParts() {
+      init_env();
       init_l();
       init_b();
     }
@@ -111,6 +133,17 @@ public abstract class EcoRobotLogged {
     
     public ILog elog() {
       return this.elog;
+    }
+    
+    private Environment.Component env;
+    
+    private Environment implem_env;
+    
+    private final class BridgeImpl_env implements Environment.Requires {
+    }
+    
+    public final Environment.Component env() {
+      return this.env;
     }
     
     private Logging.Component l;
@@ -422,6 +455,13 @@ public abstract class EcoRobotLogged {
     }
     return this.selfComponent;
   }
+  
+  /**
+   * This should be overridden by the implementation to define how to create this sub-component.
+   * This will be called once during the construction of the component to initialize this sub-component.
+   * 
+   */
+  protected abstract Environment make_env();
   
   /**
    * This should be overridden by the implementation to define how to create this sub-component.
