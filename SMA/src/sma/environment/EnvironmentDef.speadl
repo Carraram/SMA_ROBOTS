@@ -4,6 +4,8 @@ import sma.environment.services.interfaces.IInteraction
 import sma.environment.services.interfaces.IPerception
 import components.common.Viewer
 import sma.environment.services.interfaces.IEnvironmentViewing
+import components.common.Generator
+import sma.common.services.interfaces.IGeneration
 
 namespace components.environment {
 	
@@ -19,6 +21,7 @@ namespace components.environment {
 		requires dropGreenService : IStore
 		requires dropBlueService : IStore
 		requires displayService : IDisplay
+		requires generationService : IGeneration
 	}
 
 	component Environment {
@@ -31,6 +34,7 @@ namespace components.environment {
 		provides perceptionService : IPerception
 			= environmentManager.perceptionService
 			
+		part randomGenerator : Generator
 		part viewer : Viewer
 		part redNest : Nest
 		part blueNest : Nest
@@ -40,6 +44,7 @@ namespace components.environment {
 			bind dropRedService to redNest.dropService
 			bind dropGreenService to greenNest.dropService
 			bind dropBlueService to blueNest.dropService
+			bind generationService to randomGenerator.generationService
 		}
 	}
 }

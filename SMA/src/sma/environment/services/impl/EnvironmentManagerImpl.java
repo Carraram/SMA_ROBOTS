@@ -25,18 +25,26 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Etat de l'environnement
      */
     private EnvironmentState environment;
+    private int[] configurationEnv;
+    private Nest[] nestInstances;
     
     public EnvironmentManagerImpl(Nest redNest, Nest blueNest, Nest greenNest) {
         System.out.println("========== CREATION DE L'ENVIRONNEMENT ==========");
         
+        nestInstances = new Nest[3];
+        nestInstances[0] = redNest;
+        nestInstances[1] = blueNest;
+        nestInstances[2] = greenNest;
+        
         // Configuration de l'environnement
-        int[] configurationEnv = new int[3];
+        configurationEnv = new int[4];
         try {
             System.out.println("Configuration de l'environnement...");
             PropertyFileReader config = new PropertyFileReader("config/environmentConfig.properties");
             configurationEnv[0] = config.getPropertyAsInt("initNumberOfBoxes");
             configurationEnv[1] = config.getPropertyAsInt("gridColumns");
             configurationEnv[2] = config.getPropertyAsInt("gridLines");
+            configurationEnv[3] = config.getPropertyAsInt("nestDistanceMinPercent");
         } catch (IOException | NumberFormatException ex) {
             System.err.println("Une erreur est survenue lors de la lecture du fichier de configuration de l'environnement");
             System.err.println("Utilisation de la configuration par défaut");
@@ -45,30 +53,37 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             configurationEnv[0] = 0;
             configurationEnv[1] = 50;
             configurationEnv[2] = 50;
+            configurationEnv[3] = 50;
         }
         environment = new EnvironmentState(configurationEnv[0], configurationEnv[1], configurationEnv[2]);
         System.out.println("*** Environnement configuré");
-        
+    }
+    
+    @Override
+    protected void start() {
         try {
             System.out.println("Placement des nids dans l'environnement...");
-            // TODO Générer une position aléatoire pour le premier nid
-            Position initNestPosition = new Position(1,1);
+            int gridHeight = environment.getGridHeight();
+            int gridWidth = environment.getGridWidth();
+            int gridMinLength = (gridHeight > gridWidth) ? gridWidth : gridHeight;
+            int sideMinLength = gridMinLength * configurationEnv[3] / 100;
+            Position initNestPosition = EnvironmentManagerImpl.this.requires().generationService().generatePosition(0, gridWidth - sideMinLength, 0, gridHeight - sideMinLength); 
+            
             /**
-             * TailleAretes = largeurGrille - 2*posX (sommets à équidistance
-             * des bords de la grille).
+             * TailleAretes = largeurGrille - posX pour avoir la plus grande
+             * distance possible entre les nids.
              * Si la hauteur de la grille est insuffisante par rapport à cette
              * taille, alors TailleAretes = hauteurGrille - posY
              */
-            int sideLength = environment.getGridWidth() - (initNestPosition.getCoordX() * 2);
-            if (sideLength + initNestPosition.getCoordY() > environment.getGridHeight()) {
-                sideLength = environment.getGridHeight() - initNestPosition.getCoordY();
+            int sideLength = gridWidth - initNestPosition.getCoordX();
+            if (sideLength + initNestPosition.getCoordY() > gridHeight) {
+                sideLength = gridHeight - initNestPosition.getCoordY();
             }
             Position[] nestCoordinates = computeEquilateralTriangleCoordinates(initNestPosition, sideLength);
-            environment.createNest(redNest, Colors.RED, nestCoordinates[0]);
-            environment.createNest(blueNest, Colors.BLUE, nestCoordinates[1]);
-            environment.createNest(greenNest, Colors.GREEN, nestCoordinates[2]);
+            environment.createNest(nestInstances[0], Colors.RED, nestCoordinates[0]);
+            environment.createNest(nestInstances[1], Colors.BLUE, nestCoordinates[1]);
+            environment.createNest(nestInstances[2], Colors.GREEN, nestCoordinates[2]);
         } catch (NonEmptyGridBoxException | InvalidPositionException e) {
-            // Ne peut pas arriver
             e.printStackTrace();
         }
         System.out.println("*** Nids placés dans l'environnement");
@@ -82,6 +97,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         System.out.println("*** Générateur de boites lancé");
         
         System.out.println("========== L'ENVIRONNEMENT EST PRET ==========");
+        super.start();
     }
     
 	@Override

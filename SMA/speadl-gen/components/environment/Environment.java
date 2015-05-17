@@ -1,9 +1,11 @@
 package components.environment;
 
+import components.common.Generator;
 import components.common.Viewer;
 import components.environment.EnvironmentManager;
 import components.environment.Nest;
 import sma.common.services.interfaces.IDisplay;
+import sma.common.services.interfaces.IGeneration;
 import sma.environment.services.interfaces.IEnvironmentViewing;
 import sma.environment.services.interfaces.IInteraction;
 import sma.environment.services.interfaces.IPerception;
@@ -38,6 +40,13 @@ public abstract class Environment {
   }
   
   public interface Parts {
+    /**
+     * This can be called by the implementation to access the part and its provided ports.
+     * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+     * 
+     */
+    public Generator.Component randomGenerator();
+    
     /**
      * This can be called by the implementation to access the part and its provided ports.
      * It will be initialized after the required ports are initialized and before the provided ports are initialized.
@@ -80,6 +89,8 @@ public abstract class Environment {
     private final Environment implementation;
     
     public void start() {
+      assert this.randomGenerator != null: "This is a bug.";
+      ((Generator.ComponentImpl) this.randomGenerator).start();
       assert this.viewer != null: "This is a bug.";
       ((Viewer.ComponentImpl) this.viewer).start();
       assert this.redNest != null: "This is a bug.";
@@ -92,6 +103,17 @@ public abstract class Environment {
       ((EnvironmentManager.ComponentImpl) this.environmentManager).start();
       this.implementation.start();
       this.implementation.started = true;
+    }
+    
+    private void init_randomGenerator() {
+      assert this.randomGenerator == null: "This is a bug.";
+      assert this.implem_randomGenerator == null: "This is a bug.";
+      this.implem_randomGenerator = this.implementation.make_randomGenerator();
+      if (this.implem_randomGenerator == null) {
+      	throw new RuntimeException("make_randomGenerator() in components.environment.Environment should not return null.");
+      }
+      this.randomGenerator = this.implem_randomGenerator._newComponent(new BridgeImpl_randomGenerator(), false);
+      
     }
     
     private void init_viewer() {
@@ -150,6 +172,7 @@ public abstract class Environment {
     }
     
     protected void initParts() {
+      init_randomGenerator();
       init_viewer();
       init_redNest();
       init_blueNest();
@@ -187,6 +210,17 @@ public abstract class Environment {
     
     public IPerception perceptionService() {
       return this.environmentManager().perceptionService();
+    }
+    
+    private Generator.Component randomGenerator;
+    
+    private Generator implem_randomGenerator;
+    
+    private final class BridgeImpl_randomGenerator implements Generator.Requires {
+    }
+    
+    public final Generator.Component randomGenerator() {
+      return this.randomGenerator;
     }
     
     private Viewer.Component viewer;
@@ -252,6 +286,10 @@ public abstract class Environment {
       
       public final IStore dropBlueService() {
         return Environment.ComponentImpl.this.blueNest().dropService();
+      }
+      
+      public final IGeneration generationService() {
+        return Environment.ComponentImpl.this.randomGenerator().generationService();
       }
     }
     
@@ -322,6 +360,13 @@ public abstract class Environment {
     }
     return this.selfComponent;
   }
+  
+  /**
+   * This should be overridden by the implementation to define how to create this sub-component.
+   * This will be called once during the construction of the component to initialize this sub-component.
+   * 
+   */
+  protected abstract Generator make_randomGenerator();
   
   /**
    * This should be overridden by the implementation to define how to create this sub-component.

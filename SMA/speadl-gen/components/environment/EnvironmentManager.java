@@ -1,6 +1,7 @@
 package components.environment;
 
 import sma.common.services.interfaces.IDisplay;
+import sma.common.services.interfaces.IGeneration;
 import sma.environment.services.interfaces.IEnvironmentViewing;
 import sma.environment.services.interfaces.IInteraction;
 import sma.environment.services.interfaces.IPerception;
@@ -32,6 +33,12 @@ public abstract class EnvironmentManager {
      * 
      */
     public IDisplay displayService();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IGeneration generationService();
   }
   
   public interface Component extends EnvironmentManager.Provides {

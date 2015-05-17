@@ -1,6 +1,8 @@
 package sma.environment.services.impl;
 
+import sma.common.services.impl.RandomGeneratorImpl;
 import sma.common.services.impl.TerminalViewerImpl;
+import components.common.Generator;
 import components.common.Viewer;
 import components.environment.EnvironmentManager;
 import components.environment.Environment;
@@ -49,5 +51,10 @@ public class EnvironmentImpl extends Environment {
     protected Nest make_greenNest() {
         greenNest = new NestImpl();
         return greenNest;
+    }
+
+    @Override
+    protected Generator make_randomGenerator() {
+        return new RandomGeneratorImpl();
     }
 }
