@@ -5,7 +5,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Grid {
+    /**
+     * Ensemble des éléments identifiés par leur position
+     */
     private Map<Position, Object> gridElements;
+    
+    /**
+     * Message d'erreur pour l'exception NonEmptyGridBoxException
+     */
+    private final String nonEmptyGridBoxExceptionMessage = "La case en position %s ne peut pas contenir un autre élément.";
     
     /**
      * Crée une grille vide
@@ -22,7 +30,7 @@ public class Grid {
      */
     public void addElement(Object element, Position elementPosition) throws NonEmptyGridBoxException {
         if (!isEmptyGridBox(elementPosition)) {
-            throw new NonEmptyGridBoxException("La case en position " + elementPosition + " ne peut pas contenir un autre élément.");
+            throw new NonEmptyGridBoxException(String.format(nonEmptyGridBoxExceptionMessage, elementPosition.toString()));
         }
         gridElements.put(elementPosition, element);
     }

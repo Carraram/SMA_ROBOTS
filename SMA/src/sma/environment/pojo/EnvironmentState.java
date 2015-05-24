@@ -41,15 +41,29 @@ public class EnvironmentState {
 	private int nbBoxes;
 	
 	/**
+	 * Nombre d'objets dans l'environnement
+	 */
+	private int nbObjects;
+	
+	/**
+	 * Message d'erreur pour l'exception InvalidPositionException
+	 */
+	private final String invalidPositionExceptionMessage = "La position %s est en dehors des limites de la grille";
+	
+	/**
+	 * Message d'erreur pour l'exception NonEmptyGridBoxException
+	 */
+	private final String nonEmptyGridBoxExceptionMessage = "La position %s n'est pas libre";
+	
+	/**
 	 * Cree l'etat de l'environnement
-	 * @param nombreBoitesInitial Nombre de boites placees initialement dans la grille
 	 * @param gridWidth Nombre de colonnes de la grille
 	 * @param gridHeight Nombre de lignes de la grille
 	 */
-	public EnvironmentState(int initNbBoxes, int gridWidth, int gridHeight) {
+	public EnvironmentState(int gridWidth, int gridHeight) {
 	    nests = new HashMap<Colors, Position>();
 	    grid = new Grid();
-		nbBoxes = initNbBoxes;
+		nbObjects = 0;
 		this.gridWidth = gridWidth;
 		this.gridHeight = gridHeight;
 	}
@@ -77,10 +91,20 @@ public class EnvironmentState {
 	 */
 	public void createNest(Nest newNest, Colors nestColor, Position nestPosition) throws NonEmptyGridBoxException, InvalidPositionException {
 	    if (!isValidPosition(nestPosition)) {
-	        throw new InvalidPositionException("La position " + nestPosition + " est en dehors de la grille");
+	        throw new InvalidPositionException(String.format(invalidPositionExceptionMessage, nestPosition.toString()));
 	    }
 	    nests.put(nestColor, nestPosition);
 	    grid.addElement(newNest, nestPosition);
+	    nbObjects++;
+	}
+	
+	public void putBox(ColorBox box, Position boxPosition) throws NonEmptyGridBoxException, InvalidPositionException {
+	    if (!isValidPosition(boxPosition)) {
+	        throw new InvalidPositionException(String.format(invalidPositionExceptionMessage, boxPosition.toString()));
+	    }
+	    grid.addElement(box, boxPosition);
+	    nbBoxes++;
+	    nbObjects++;
 	}
 	
 	/**
@@ -111,10 +135,10 @@ public class EnvironmentState {
 	 */
 	public boolean isValidShifting(Position start, Position finish) throws InvalidPositionException, NonEmptyGridBoxException {
 	    if (!isValidPosition(finish)) {
-	        throw new InvalidPositionException("La position " + finish + " est en dehors des limites de la grille");
+	        throw new InvalidPositionException(String.format(invalidPositionExceptionMessage, finish.toString()));
 	    }
 	    if (!grid.isEmptyGridBox(finish)) {
-	        throw new NonEmptyGridBoxException("La position " + finish + " n'est pas libre");
+	        throw new NonEmptyGridBoxException(String.format(nonEmptyGridBoxExceptionMessage, finish.toString()));
 	    }
 	    // TODO Vérifier si déplacement d'une seule case
 	    return true;

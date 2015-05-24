@@ -25,103 +25,121 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Etat de l'environnement
      */
     private EnvironmentState environment;
+
+    /**
+     * Configuration de l'environnement
+     */
     private int[] configurationEnv;
+    
+    /**
+     * Configuration des nids
+     */
+    private int configurationNest;
+    
+    /**
+     * Configuration pour la génération aléatoire
+     */
+    private int[] configurationRandomTime;
+
+    /**
+     * Instances des nids
+     */
     private Nest[] nestInstances;
     
+    /*
+     * Nombre de boîtes maximal dans l'environnement
+     */
+    private int maxNumberOfBoxes;
+
+    /**
+     * Message d'erreur pour l'exception InvalidPositionException
+     */
+    private final String invalidPositionExceptionMessage = "La position %s est en dehors des limites de la grille";
+
     public EnvironmentManagerImpl(Nest redNest, Nest blueNest, Nest greenNest) {
-        System.out.println("========== CREATION DE L'ENVIRONNEMENT ==========");
-        
         nestInstances = new Nest[3];
         nestInstances[0] = redNest;
         nestInstances[1] = blueNest;
         nestInstances[2] = greenNest;
-        
+    }
+
+    @Override
+    protected void start() {
+        displayMessage("========== CREATION DE L'ENVIRONNEMENT ==========");
+
         // Configuration de l'environnement
         configurationEnv = new int[4];
+        configurationRandomTime = new int[2];
         try {
-            System.out.println("Configuration de l'environnement...");
+            displayMessage("Configuration de l'environnement...");
             PropertyFileReader config = new PropertyFileReader("config/environmentConfig.properties");
             configurationEnv[0] = config.getPropertyAsInt("initNumberOfBoxes");
             configurationEnv[1] = config.getPropertyAsInt("gridColumns");
             configurationEnv[2] = config.getPropertyAsInt("gridLines");
-            configurationEnv[3] = config.getPropertyAsInt("nestDistanceMinPercent");
+            configurationNest = config.getPropertyAsInt("nestDistanceMinPercent");
+            configurationRandomTime[0] = config.getPropertyAsInt("randomTimeMin");
+            configurationRandomTime[1] = config.getPropertyAsInt("randomTimeMax");
+            String maxNumberOfBoxesMethod = config.getPropertyAsString("maxNumberOfBoxesMethod");
+            if("value".equals(maxNumberOfBoxesMethod)) {
+                // Nombre de boîtes indépendant de la taille de la grille
+                maxNumberOfBoxes = config.getPropertyAsInt("maxNumberOfBoxesValue");
+            } else {
+                // Nombre de boîtes déterminé en pourcentage de cases de la grille
+                int maxNumberPercent = config.getPropertyAsInt("maxNumberOfBoxesPercent");
+                int nbGridBoxes = environment.getGridHeight() * environment.getGridWidth();
+                maxNumberOfBoxes = nbGridBoxes * maxNumberPercent / 100;
+            }
         } catch (IOException | NumberFormatException ex) {
-            System.err.println("Une erreur est survenue lors de la lecture du fichier de configuration de l'environnement");
-            System.err.println("Utilisation de la configuration par défaut");
-            ex.printStackTrace();
+            displayError("Une erreur est survenue lors de la lecture du fichier de configuration de l'environnement. Utilisation de la configuration par défaut.", ex);
             // Valeurs par défaut en cas d'échec de la lecture du fichier de configuration
             configurationEnv[0] = 0;
             configurationEnv[1] = 50;
             configurationEnv[2] = 50;
-            configurationEnv[3] = 50;
+            configurationNest = 50;
+            configurationRandomTime[0] = 1;
+            configurationRandomTime[1] = 15;
         }
-        environment = new EnvironmentState(configurationEnv[0], configurationEnv[1], configurationEnv[2]);
-        System.out.println("*** Environnement configuré");
-    }
-    
-    @Override
-    protected void start() {
-        try {
-            System.out.println("Placement des nids dans l'environnement...");
-            int gridHeight = environment.getGridHeight();
-            int gridWidth = environment.getGridWidth();
-            int gridMinLength = (gridHeight > gridWidth) ? gridWidth : gridHeight;
-            int sideMinLength = gridMinLength * configurationEnv[3] / 100;
-            Position initNestPosition = EnvironmentManagerImpl.this.requires().generationService().generatePosition(0, gridWidth - sideMinLength, 0, gridHeight - sideMinLength); 
-            
-            /**
-             * TailleAretes = largeurGrille - posX pour avoir la plus grande
-             * distance possible entre les nids.
-             * Si la hauteur de la grille est insuffisante par rapport à cette
-             * taille, alors TailleAretes = hauteurGrille - posY
-             */
-            int sideLength = gridWidth - initNestPosition.getCoordX();
-            if (sideLength + initNestPosition.getCoordY() > gridHeight) {
-                sideLength = gridHeight - initNestPosition.getCoordY();
-            }
-            Position[] nestCoordinates = computeEquilateralTriangleCoordinates(initNestPosition, sideLength);
-            environment.createNest(nestInstances[0], Colors.RED, nestCoordinates[0]);
-            environment.createNest(nestInstances[1], Colors.BLUE, nestCoordinates[1]);
-            environment.createNest(nestInstances[2], Colors.GREEN, nestCoordinates[2]);
-        } catch (NonEmptyGridBoxException | InvalidPositionException e) {
-            e.printStackTrace();
-        }
-        System.out.println("*** Nids placés dans l'environnement");
+        environment = new EnvironmentState(configurationEnv[1], configurationEnv[2]);
+        displayMessage("*** Environnement configuré");
         
-        // TODO Placer les boites de départ
-        System.out.println("Génération des boites initiales...");
-        System.out.println("*** Boites initiales générées");
-        
-        // TODO Lancer le générateur de boites
-        System.out.println("Lancement du générateur de boites...");
-        System.out.println("*** Générateur de boites lancé");
-        
-        System.out.println("========== L'ENVIRONNEMENT EST PRET ==========");
+        displayMessage("Placement des nids dans l'environnement...");
+        putNestsIntoEnvironment();
+        displayMessage("*** Nids placés dans l'environnement");
+
+        displayMessage("Génération des boites initiales...");
+        putBoxesIntoEnvironment();
+        displayMessage("*** Boites initiales générées");
+
+        displayMessage("Lancement du générateur de boites...");
+        runRandomBoxGenerator();
+        displayMessage("*** Générateur de boites lancé");
+
+        displayMessage("========== L'ENVIRONNEMENT EST PRET ==========");
         super.start();
     }
-    
-	@Override
-	protected IInteraction make_interactionService() {
-		return new IInteraction() {
-			
-			@Override
-			public float dropBox(ColorBox box, RobotState robotState) {
-			    float energieRecue = 0.F;
-			    switch (box) {
-			    case BLUE:
-			        energieRecue = EnvironmentManagerImpl.this.requires().dropBlueService().dropBox(box, robotState);
-			        break;
-			    case RED:
-			        energieRecue = EnvironmentManagerImpl.this.requires().dropRedService().dropBox(box, robotState);
-			        break;
-			    case GREEN:
-			        energieRecue = EnvironmentManagerImpl.this.requires().dropGreenService().dropBox(box, robotState);
-			        break;
-			    }
-			    
-			    robotState.increaseEnergy(energieRecue);
-				return energieRecue;
-			}
+
+    @Override
+    protected IInteraction make_interactionService() {
+        return new IInteraction() {
+
+            @Override
+            public float dropBox(ColorBox box, RobotState robotState) {
+                float energieRecue = 0.F;
+                switch (box) {
+                case BLUE:
+                    energieRecue = EnvironmentManagerImpl.this.requires().dropBlueService().dropBox(box, robotState);
+                    break;
+                case RED:
+                    energieRecue = EnvironmentManagerImpl.this.requires().dropRedService().dropBox(box, robotState);
+                    break;
+                case GREEN:
+                    energieRecue = EnvironmentManagerImpl.this.requires().dropGreenService().dropBox(box, robotState);
+                    break;
+                }
+
+                robotState.increaseEnergy(energieRecue);
+                return energieRecue;
+            }
 
             @Override
             public void move(Position initPosition, Position newPosition) throws NonEmptyGridBoxException, InvalidPositionException {
@@ -129,13 +147,13 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
                     environment.moveRobot(initPosition, newPosition);
                 }
             }
-		};
-	}
+        };
+    }
 
     @Override
     protected IPerception make_perceptionService() {
         return new IPerception() {
-            
+
             @Override
             public Map<Colors, Position> getNests() {
                 return environment.getNests();
@@ -145,7 +163,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             public Map<Position, Object> lookAround(Position position,
                     int offset) throws InvalidPositionException {
                 if (!environment.isValidPosition(position)) {
-                    throw new InvalidPositionException("La position " + position + " n'est pas une position valide");
+                    throw new InvalidPositionException(String.format(invalidPositionExceptionMessage, position.toString()));
                 }
                 List<Position> positionsAround = new ArrayList<Position>();
                 int width = environment.getGridWidth();
@@ -172,7 +190,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
     @Override
     protected IEnvironmentViewing make_viewingService() {
         return new IEnvironmentViewing() {
-            
+
             @Override
             public void viewState() {
                 Map<Colors, Position> nids = environment.getNests();
@@ -185,7 +203,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             }
         };
     }
-    
+
     /**
      * Calcule les coordonnées des sommets d'un triangle équilatéral
      * @param leftBottom Sommet de départ pour le calcul
@@ -205,4 +223,140 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         return coordinates;
     }
 
+    /**
+     * Placement des nids dans l'environnement
+     */
+    private void putNestsIntoEnvironment() {
+        try {
+            int gridHeight = environment.getGridHeight();
+            int gridWidth = environment.getGridWidth();
+            int gridMinLength = (gridHeight > gridWidth) ? gridWidth : gridHeight;
+            float nestDistancePercent = (float) configurationNest / 100;
+            float sideLengthAsFloat = gridMinLength * nestDistancePercent;
+            int sideMinLength = (int) sideLengthAsFloat;
+            Position initNestPosition = generateRandomPosition(0, gridWidth - sideMinLength, 0, gridHeight - sideMinLength);
+
+            /**
+             * TailleAretes = largeurGrille - posX pour avoir la plus grande
+             * distance possible entre les nids.
+             * Si la hauteur de la grille est insuffisante par rapport à cette
+             * taille, alors TailleAretes = hauteurGrille - posY
+             */
+            int sideLength = gridWidth - initNestPosition.getCoordX();
+            if (sideLength + initNestPosition.getCoordY() > gridHeight) {
+                sideLength = gridHeight - initNestPosition.getCoordY();
+            }
+            Position[] nestCoordinates = computeEquilateralTriangleCoordinates(initNestPosition, sideLength);
+            environment.createNest(nestInstances[0], Colors.RED, nestCoordinates[0]);
+            environment.createNest(nestInstances[1], Colors.BLUE, nestCoordinates[1]);
+            environment.createNest(nestInstances[2], Colors.GREEN, nestCoordinates[2]);
+        } catch (NonEmptyGridBoxException | InvalidPositionException e) {
+            displayError("Une erreur est survenue, l'environnement ne peut pas être créé.", e);
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Placement des boîtes initiales dans l'environnement
+     */
+    private void putBoxesIntoEnvironment() {
+        int gridHeight = environment.getGridHeight();
+        int gridWidth = environment.getGridWidth();
+        int nbBoxes = configurationEnv[0];
+        int nbBoxesPlaced = 0;
+        while (nbBoxesPlaced != nbBoxes) {
+            Position boxPosition = generateRandomPosition(0, gridWidth, 0, gridHeight);
+            try {
+                environment.putBox(generateRandomBox(), boxPosition);
+                nbBoxesPlaced++;
+            } catch (NonEmptyGridBoxException | InvalidPositionException e) {
+                // Rien à faire
+            }
+        }
+    }
+
+    /**
+     * Lancement d'un générateur aléatoire de boites
+     */
+    private void runRandomBoxGenerator(){
+        // TODO Comparer avec Concurrent API pour gérer accès à la grille en modification
+        Runnable generatorBehavior = new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        if (environment.getNumberOfBoxes() < maxNumberOfBoxes) {
+                            Position randomPosition = generateRandomPosition(0, environment.getGridWidth(), 0, environment.getGridHeight());
+                            int boxNumber = generateRandomInteger(0, 2);
+                            ColorBox newBox = ColorBox.values()[boxNumber];
+                            displayMessage("Insertion de la boîte " + newBox + " en position " + randomPosition);
+                            environment.putBox(newBox, randomPosition);
+                        }
+                        int nextBoxTime = 1000 * generateRandomInteger(configurationRandomTime[0], configurationRandomTime[1]);
+                        //System.out.println("Sleeping for " + nextBoxTime/1000 + "s.");
+                        Thread.sleep(nextBoxTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (NonEmptyGridBoxException | InvalidPositionException e) {
+                        // Ne rien faire
+                        displayError("Placement de la boîte impossible : case non vide", null);
+                    }
+                }
+            }
+        };
+        Thread generatorThread = new Thread(generatorBehavior);
+        generatorThread.run();
+    }
+
+    /**
+     * Génère une position aléatoire comprise dans un intervalle (bornes incluses)
+     * @param minX Valeur mininimale de la coordonnée X
+     * @param maxX Valeur maximale de la coordonnée X
+     * @param minY Valeur minimale de la coordonnée Y
+     * @param maxY Valeur maximale de la coordonnée Y
+     * @return Position générée aléatoirement
+     */
+    private Position generateRandomPosition(int minX, int maxX, int minY, int maxY) {
+        return EnvironmentManagerImpl.this.requires().generationService().generatePosition(minX, maxY, minY, maxY, true, true);
+    }
+
+    /**
+     * Génère un entier aléatoire inclus dans un intervalle (bornes incluses)
+     * @param min Valeur minimale
+     * @param max Valeur maximale
+     * @return Entier généré
+     */
+    private int generateRandomInteger(int min, int max) {
+        return EnvironmentManagerImpl.this.requires().generationService().generateIntegerWithinRange(min, max, true, true);
+    }
+
+    /**
+     * Génère une boîte de couleur aléatoire
+     * @return Boite de couleur
+     */
+    private ColorBox generateRandomBox() {
+        return ColorBox.values()[generateRandomInteger(0, 2)];
+    }
+
+    /**
+     * Affiche un message basique
+     * @param message Message
+     */
+    private void displayMessage(String message) {
+        EnvironmentManagerImpl.this.requires().displayService().displayMessage(message);
+    }
+    
+    /**
+     * Affiche un message d'erreur et/ou l'exception
+     * @param errorMessage Message d'erreur
+     * @param ex Exception
+     */
+    private void displayError(String errorMessage, Exception ex) {
+        if (errorMessage != null && !errorMessage.isEmpty()) {
+            EnvironmentManagerImpl.this.requires().displayService().displayErrorMessage(errorMessage);
+        }
+        if (ex != null) {
+            ex.printStackTrace();
+        }
+    }
 }

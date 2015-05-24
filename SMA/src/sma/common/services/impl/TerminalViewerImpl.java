@@ -23,6 +23,11 @@ public class TerminalViewerImpl extends Viewer {
                     System.out.println(str);
                 }
             }
+
+            @Override
+            public void displayErrorMessage(String errorMessage) {
+                System.err.println(errorMessage);
+            }
         };
     }
 
