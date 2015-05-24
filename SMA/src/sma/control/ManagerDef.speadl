@@ -1,0 +1,22 @@
+import sma.common.services.interfaces.IPersistence
+import sma.control.services.interfaces.IUserOperations
+
+namespace components.control {
+	component Persistence {
+		provides persistenceService : IPersistence
+	}
+	
+	component SystemManager {
+		provides userService : IUserOperations
+		requires persistenceService : IPersistence
+	}
+	
+	component UserAccess {
+		provides userService : IUserOperations
+			= systemManager.userService
+		part persistence : Persistence
+		part systemManager : SystemManager {
+			bind persistenceService to persistence.persistenceService
+		}
+	}
+}
