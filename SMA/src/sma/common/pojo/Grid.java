@@ -1,5 +1,6 @@
 package sma.common.pojo;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,8 @@ public class Grid {
      */
     public Grid() {
         gridElements = new HashMap<Position, Object>();
+        // Synchronisation des accès à la grille
+        gridElements = Collections.synchronizedMap(gridElements);
     }
     
     /**
