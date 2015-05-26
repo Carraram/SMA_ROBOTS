@@ -35,7 +35,18 @@ public class SystemManagerImpl extends SystemManager {
 //                    // TODO Auto-generated catch block
 //                    e.printStackTrace();
 //                }
-//                
+            }
+
+            @Override
+            public void startSystem() {
+                requires().environmentManagementService().startEnvironmentExecution();
+                // TODO Start agents
+            }
+
+            @Override
+            public void stopSystem() {
+                // TODO Auto-generated method stub
+                requires().environmentManagementService().stopEnvironmentExecution();
             }
         };
     }

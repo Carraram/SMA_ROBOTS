@@ -2,6 +2,7 @@ package components.environment;
 
 import sma.common.services.interfaces.IDisplay;
 import sma.common.services.interfaces.IGeneration;
+import sma.environment.services.interfaces.IEnvManagement;
 import sma.environment.services.interfaces.IEnvironmentViewing;
 import sma.environment.services.interfaces.IInteraction;
 import sma.environment.services.interfaces.IPerception;
@@ -62,6 +63,12 @@ public abstract class EnvironmentManager {
      * 
      */
     public IEnvironmentViewing viewingService();
+    
+    /**
+     * This can be called to access the provided port.
+     * 
+     */
+    public IEnvManagement managementService();
   }
   
   public interface Parts {
@@ -105,10 +112,19 @@ public abstract class EnvironmentManager {
       }
     }
     
+    private void init_managementService() {
+      assert this.managementService == null: "This is a bug.";
+      this.managementService = this.implementation.make_managementService();
+      if (this.managementService == null) {
+      	throw new RuntimeException("make_managementService() in components.environment.EnvironmentManager should not return null.");
+      }
+    }
+    
     protected void initProvidedPorts() {
       init_interactionService();
       init_perceptionService();
       init_viewingService();
+      init_managementService();
     }
     
     public ComponentImpl(final EnvironmentManager implem, final EnvironmentManager.Requires b, final boolean doInits) {
@@ -143,6 +159,12 @@ public abstract class EnvironmentManager {
     
     public IEnvironmentViewing viewingService() {
       return this.viewingService;
+    }
+    
+    private IEnvManagement managementService;
+    
+    public IEnvManagement managementService() {
+      return this.managementService;
     }
   }
   
@@ -205,6 +227,13 @@ public abstract class EnvironmentManager {
    * 
    */
   protected abstract IEnvironmentViewing make_viewingService();
+  
+  /**
+   * This should be overridden by the implementation to define the provided port.
+   * This will be called once during the construction of the component to initialize the port.
+   * 
+   */
+  protected abstract IEnvManagement make_managementService();
   
   /**
    * This can be called by the implementation to access the required ports.

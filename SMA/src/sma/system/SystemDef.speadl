@@ -1,0 +1,15 @@
+import components.environment.Environment
+import components.control.UserAccess
+import sma.control.services.interfaces.IUserOperations
+
+namespace components.system {
+	component SMASystem {
+		provides userService : IUserOperations
+			= manager.userService
+		
+		part environment : Environment
+		part manager : UserAccess {
+			bind envManagementService to environment.managementService
+		}
+	}
+}

@@ -13,4 +13,14 @@ public interface IUserOperations {
      * Charge l'état du système s'il existe
      */
     void loadSystemState();
+    
+    /**
+     * Démarre le système
+     */
+    void startSystem();
+    
+    /**
+     * Arrête le système
+     */
+    void stopSystem();
 }

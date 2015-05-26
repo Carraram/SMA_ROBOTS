@@ -1,22 +1,16 @@
-package components.control;
+package components.system;
 
-import components.control.Persistence;
-import components.control.SystemManager;
-import sma.common.services.interfaces.IPersistence;
+import components.control.UserAccess;
+import components.environment.Environment;
 import sma.control.services.interfaces.IUserOperations;
 import sma.environment.services.interfaces.IEnvManagement;
 
 @SuppressWarnings("all")
-public abstract class UserAccess {
+public abstract class SMASystem {
   public interface Requires {
-    /**
-     * This can be called by the implementation to access this required port.
-     * 
-     */
-    public IEnvManagement envManagementService();
   }
   
-  public interface Component extends UserAccess.Provides {
+  public interface Component extends SMASystem.Provides {
   }
   
   public interface Provides {
@@ -33,62 +27,62 @@ public abstract class UserAccess {
      * It will be initialized after the required ports are initialized and before the provided ports are initialized.
      * 
      */
-    public Persistence.Component persistence();
+    public Environment.Component environment();
     
     /**
      * This can be called by the implementation to access the part and its provided ports.
      * It will be initialized after the required ports are initialized and before the provided ports are initialized.
      * 
      */
-    public SystemManager.Component systemManager();
+    public UserAccess.Component manager();
   }
   
-  public static class ComponentImpl implements UserAccess.Component, UserAccess.Parts {
-    private final UserAccess.Requires bridge;
+  public static class ComponentImpl implements SMASystem.Component, SMASystem.Parts {
+    private final SMASystem.Requires bridge;
     
-    private final UserAccess implementation;
+    private final SMASystem implementation;
     
     public void start() {
-      assert this.persistence != null: "This is a bug.";
-      ((Persistence.ComponentImpl) this.persistence).start();
-      assert this.systemManager != null: "This is a bug.";
-      ((SystemManager.ComponentImpl) this.systemManager).start();
+      assert this.environment != null: "This is a bug.";
+      ((Environment.ComponentImpl) this.environment).start();
+      assert this.manager != null: "This is a bug.";
+      ((UserAccess.ComponentImpl) this.manager).start();
       this.implementation.start();
       this.implementation.started = true;
     }
     
-    private void init_persistence() {
-      assert this.persistence == null: "This is a bug.";
-      assert this.implem_persistence == null: "This is a bug.";
-      this.implem_persistence = this.implementation.make_persistence();
-      if (this.implem_persistence == null) {
-      	throw new RuntimeException("make_persistence() in components.control.UserAccess should not return null.");
+    private void init_environment() {
+      assert this.environment == null: "This is a bug.";
+      assert this.implem_environment == null: "This is a bug.";
+      this.implem_environment = this.implementation.make_environment();
+      if (this.implem_environment == null) {
+      	throw new RuntimeException("make_environment() in components.system.SMASystem should not return null.");
       }
-      this.persistence = this.implem_persistence._newComponent(new BridgeImpl_persistence(), false);
+      this.environment = this.implem_environment._newComponent(new BridgeImpl_environment(), false);
       
     }
     
-    private void init_systemManager() {
-      assert this.systemManager == null: "This is a bug.";
-      assert this.implem_systemManager == null: "This is a bug.";
-      this.implem_systemManager = this.implementation.make_systemManager();
-      if (this.implem_systemManager == null) {
-      	throw new RuntimeException("make_systemManager() in components.control.UserAccess should not return null.");
+    private void init_manager() {
+      assert this.manager == null: "This is a bug.";
+      assert this.implem_manager == null: "This is a bug.";
+      this.implem_manager = this.implementation.make_manager();
+      if (this.implem_manager == null) {
+      	throw new RuntimeException("make_manager() in components.system.SMASystem should not return null.");
       }
-      this.systemManager = this.implem_systemManager._newComponent(new BridgeImpl_systemManager(), false);
+      this.manager = this.implem_manager._newComponent(new BridgeImpl_manager(), false);
       
     }
     
     protected void initParts() {
-      init_persistence();
-      init_systemManager();
+      init_environment();
+      init_manager();
     }
     
     protected void initProvidedPorts() {
       
     }
     
-    public ComponentImpl(final UserAccess implem, final UserAccess.Requires b, final boolean doInits) {
+    public ComponentImpl(final SMASystem implem, final SMASystem.Requires b, final boolean doInits) {
       this.bridge = b;
       this.implementation = implem;
       
@@ -105,36 +99,32 @@ public abstract class UserAccess {
     }
     
     public IUserOperations userService() {
-      return this.systemManager().userService();
+      return this.manager().userService();
     }
     
-    private Persistence.Component persistence;
+    private Environment.Component environment;
     
-    private Persistence implem_persistence;
+    private Environment implem_environment;
     
-    private final class BridgeImpl_persistence implements Persistence.Requires {
+    private final class BridgeImpl_environment implements Environment.Requires {
     }
     
-    public final Persistence.Component persistence() {
-      return this.persistence;
+    public final Environment.Component environment() {
+      return this.environment;
     }
     
-    private SystemManager.Component systemManager;
+    private UserAccess.Component manager;
     
-    private SystemManager implem_systemManager;
+    private UserAccess implem_manager;
     
-    private final class BridgeImpl_systemManager implements SystemManager.Requires {
-      public final IPersistence persistenceService() {
-        return UserAccess.ComponentImpl.this.persistence().persistenceService();
-      }
-      
-      public final IEnvManagement environmentManagementService() {
-        return UserAccess.ComponentImpl.this.bridge.envManagementService();
+    private final class BridgeImpl_manager implements UserAccess.Requires {
+      public final IEnvManagement envManagementService() {
+        return SMASystem.ComponentImpl.this.environment().managementService();
       }
     }
     
-    public final SystemManager.Component systemManager() {
-      return this.systemManager;
+    public final UserAccess.Component manager() {
+      return this.manager;
     }
   }
   
@@ -152,7 +142,7 @@ public abstract class UserAccess {
    */
   private boolean started = false;;
   
-  private UserAccess.ComponentImpl selfComponent;
+  private SMASystem.ComponentImpl selfComponent;
   
   /**
    * Can be overridden by the implementation.
@@ -169,7 +159,7 @@ public abstract class UserAccess {
    * This can be called by the implementation to access the provided ports.
    * 
    */
-  protected UserAccess.Provides provides() {
+  protected SMASystem.Provides provides() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("provides() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if provides() is needed to initialise the component.");
@@ -181,7 +171,7 @@ public abstract class UserAccess {
    * This can be called by the implementation to access the required ports.
    * 
    */
-  protected UserAccess.Requires requires() {
+  protected SMASystem.Requires requires() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("requires() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if requires() is needed to initialise the component.");
@@ -193,7 +183,7 @@ public abstract class UserAccess {
    * This can be called by the implementation to access the parts and their provided ports.
    * 
    */
-  protected UserAccess.Parts parts() {
+  protected SMASystem.Parts parts() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("parts() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if parts() is needed to initialise the component.");
@@ -206,28 +196,36 @@ public abstract class UserAccess {
    * This will be called once during the construction of the component to initialize this sub-component.
    * 
    */
-  protected abstract Persistence make_persistence();
+  protected abstract Environment make_environment();
   
   /**
    * This should be overridden by the implementation to define how to create this sub-component.
    * This will be called once during the construction of the component to initialize this sub-component.
    * 
    */
-  protected abstract SystemManager make_systemManager();
+  protected abstract UserAccess make_manager();
   
   /**
    * Not meant to be used to manually instantiate components (except for testing).
    * 
    */
-  public synchronized UserAccess.Component _newComponent(final UserAccess.Requires b, final boolean start) {
+  public synchronized SMASystem.Component _newComponent(final SMASystem.Requires b, final boolean start) {
     if (this.init) {
-    	throw new RuntimeException("This instance of UserAccess has already been used to create a component, use another one.");
+    	throw new RuntimeException("This instance of SMASystem has already been used to create a component, use another one.");
     }
     this.init = true;
-    UserAccess.ComponentImpl  _comp = new UserAccess.ComponentImpl(this, b, true);
+    SMASystem.ComponentImpl  _comp = new SMASystem.ComponentImpl(this, b, true);
     if (start) {
     	_comp.start();
     }
     return _comp;
+  }
+  
+  /**
+   * Use to instantiate a component from this implementation.
+   * 
+   */
+  public SMASystem.Component newComponent() {
+    return this._newComponent(new SMASystem.Requires() {}, true);
   }
 }

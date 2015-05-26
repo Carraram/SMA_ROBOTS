@@ -179,4 +179,12 @@ public class EnvironmentState {
 	public int getGridHeight() {
 	   return gridHeight; 
 	}
+	
+	/**
+	 * Renvoie le nombre d'éléments dans la grille
+	 * @return Nombre d'éléments dans la grille
+	 */
+	public int getNumberOfElements() {
+	    return nbObjects;
+	}
 }

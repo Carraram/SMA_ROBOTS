@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import sma.agents.pojo.RobotState;
 import sma.common.pojo.NonEmptyGridBoxException;
@@ -12,6 +15,8 @@ import sma.common.pojo.Position;
 import sma.common.pojo.InvalidPositionException;
 import sma.environment.pojo.ColorBox;
 import sma.environment.pojo.EnvironmentState;
+import sma.environment.pojo.EnvironmentStateReadOnly;
+import sma.environment.services.interfaces.IEnvManagement;
 import sma.environment.services.interfaces.IEnvironmentViewing;
 import sma.environment.services.interfaces.IInteraction;
 import sma.environment.services.interfaces.IPerception;
@@ -30,12 +35,12 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Configuration de l'environnement
      */
     private int[] configurationEnv;
-    
+
     /**
      * Configuration des nids
      */
     private int configurationNest;
-    
+
     /**
      * Configuration pour la génération aléatoire
      */
@@ -45,11 +50,16 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Instances des nids
      */
     private Nest[] nestInstances;
-    
+
     /*
      * Nombre de boîtes maximal dans l'environnement
      */
     private int maxNumberOfBoxes;
+
+    /**
+     * Gestion du thread générateur
+     */
+    private ExecutorService executor;
 
     /**
      * Message d'erreur pour l'exception InvalidPositionException
@@ -61,6 +71,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         nestInstances[0] = redNest;
         nestInstances[1] = blueNest;
         nestInstances[2] = greenNest;
+        executor = Executors.newSingleThreadExecutor();
     }
 
     @Override
@@ -101,7 +112,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         }
         environment = new EnvironmentState(configurationEnv[1], configurationEnv[2]);
         displayMessage("*** Environnement configuré");
-        
+
         displayMessage("Placement des nids dans l'environnement...");
         putNestsIntoEnvironment();
         displayMessage("*** Nids placés dans l'environnement");
@@ -109,10 +120,6 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         displayMessage("Génération des boites initiales...");
         putBoxesIntoEnvironment();
         displayMessage("*** Boites initiales générées");
-
-        displayMessage("Lancement du générateur de boites...");
-        runRandomBoxGenerator();
-        displayMessage("*** Générateur de boites lancé");
 
         displayMessage("========== L'ENVIRONNEMENT EST PRET ==========");
         super.start();
@@ -204,6 +211,46 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         };
     }
 
+    @Override
+    protected IEnvManagement make_managementService() {
+        return new IEnvManagement() {
+
+            @Override
+            public void stopEnvironmentExecution() {
+                displayMessage("========== ARRET DE L'ENVIRONNEMENT ==========");
+                executor.shutdownNow();
+                // On attend que tous les threads s'arrêtent
+                // On relance la demande d'arrêt toutes les 10s si certains threads ne sont pas terminés
+                while (!executor.isTerminated()) {
+                    try {
+                        executor.awaitTermination(10, TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        displayError("Environment : generator didn't stop, shutdown now", null);
+                        executor.shutdownNow();
+                    }
+                }
+                displayMessage("*** Générateur arrêté");
+            }
+
+            @Override
+            public void startEnvironmentExecution() {
+                displayMessage("========== LANCEMENT DE L'ENVIRONNEMENT ==========");
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        runRandomBoxGenerator();
+                    }
+                });
+                displayMessage("*** Générateur lancé");
+            }
+
+            @Override
+            public EnvironmentStateReadOnly getEnvironmentState() {
+                return new EnvironmentStateReadOnly(environment);
+            }
+        };
+    }
+
     /**
      * Calcule les coordonnées des sommets d'un triangle équilatéral
      * @param leftBottom Sommet de départ pour le calcul
@@ -279,33 +326,25 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Lancement d'un générateur aléatoire de boites
      */
     private void runRandomBoxGenerator(){
-        // TODO Comparer avec Concurrent API pour gérer accès à la grille en modification
-        Runnable generatorBehavior = new Runnable() {
-            @Override
-            public void run() {
-                while(true) {
-                    try {
-                        if (environment.getNumberOfBoxes() < maxNumberOfBoxes) {
-                            Position randomPosition = generateRandomPosition(0, environment.getGridWidth(), 0, environment.getGridHeight());
-                            int boxNumber = generateRandomInteger(0, 2);
-                            ColorBox newBox = ColorBox.values()[boxNumber];
-                            displayMessage("Insertion de la boîte " + newBox + " en position " + randomPosition);
-                            environment.putBox(newBox, randomPosition);
-                        }
-                        int nextBoxTime = 1000 * generateRandomInteger(configurationRandomTime[0], configurationRandomTime[1]);
-                        //System.out.println("Sleeping for " + nextBoxTime/1000 + "s.");
-                        Thread.sleep(nextBoxTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (NonEmptyGridBoxException | InvalidPositionException e) {
-                        // Ne rien faire
-                        displayError("Placement de la boîte impossible : case non vide", null);
-                    }
-                }
+        while(true) {
+            try {
+              if (environment.getNumberOfBoxes() < maxNumberOfBoxes) {
+                  Position randomPosition = generateRandomPosition(0, environment.getGridWidth(), 0, environment.getGridHeight());
+                  int boxNumber = generateRandomInteger(0, 2);
+                  ColorBox newBox = ColorBox.values()[boxNumber];
+                  displayMessage("Insertion de la boîte " + newBox + " en position " + randomPosition);
+                  environment.putBox(newBox, randomPosition);
+                  int nextBoxTime = generateRandomInteger(configurationRandomTime[0], configurationRandomTime[1]);
+                  Thread.sleep(nextBoxTime * 1000);
+              }
+              } catch (NonEmptyGridBoxException | InvalidPositionException e) {
+                  // Ne rien faire
+                  displayError("Placement de la boîte impossible : case non vide", null);
+              } catch (InterruptedException e) {
+                  // Demande d'arrêt de l'environnement
+                break;
             }
-        };
-        Thread generatorThread = new Thread(generatorBehavior);
-        generatorThread.run();
+        }
     }
 
     /**
@@ -345,7 +384,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
     private void displayMessage(String message) {
         EnvironmentManagerImpl.this.requires().displayService().displayMessage(message);
     }
-    
+
     /**
      * Affiche un message d'erreur et/ou l'exception
      * @param errorMessage Message d'erreur

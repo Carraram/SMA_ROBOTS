@@ -2,6 +2,7 @@ package components.control;
 
 import sma.common.services.interfaces.IPersistence;
 import sma.control.services.interfaces.IUserOperations;
+import sma.environment.services.interfaces.IEnvManagement;
 
 @SuppressWarnings("all")
 public abstract class SystemManager {
@@ -11,6 +12,12 @@ public abstract class SystemManager {
      * 
      */
     public IPersistence persistenceService();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IEnvManagement environmentManagementService();
   }
   
   public interface Component extends SystemManager.Provides {

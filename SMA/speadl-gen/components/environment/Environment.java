@@ -6,6 +6,7 @@ import components.environment.EnvironmentManager;
 import components.environment.Nest;
 import sma.common.services.interfaces.IDisplay;
 import sma.common.services.interfaces.IGeneration;
+import sma.environment.services.interfaces.IEnvManagement;
 import sma.environment.services.interfaces.IEnvironmentViewing;
 import sma.environment.services.interfaces.IInteraction;
 import sma.environment.services.interfaces.IPerception;
@@ -37,6 +38,12 @@ public abstract class Environment {
      * 
      */
     public IPerception perceptionService();
+    
+    /**
+     * This can be called to access the provided port.
+     * 
+     */
+    public IEnvManagement managementService();
   }
   
   public interface Parts {
@@ -210,6 +217,10 @@ public abstract class Environment {
     
     public IPerception perceptionService() {
       return this.environmentManager().perceptionService();
+    }
+    
+    public IEnvManagement managementService() {
+      return this.environmentManager().managementService();
     }
     
     private Generator.Component randomGenerator;

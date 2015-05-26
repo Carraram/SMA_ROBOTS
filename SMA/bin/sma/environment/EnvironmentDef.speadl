@@ -6,6 +6,7 @@ import components.common.Viewer
 import sma.environment.services.interfaces.IEnvironmentViewing
 import components.common.Generator
 import sma.common.services.interfaces.IGeneration
+import sma.environment.services.interfaces.IEnvManagement
 
 namespace components.environment {
 	
@@ -17,6 +18,7 @@ namespace components.environment {
 		provides interactionService : IInteraction
 		provides perceptionService : IPerception
 		provides viewingService : IEnvironmentViewing
+		provides managementService : IEnvManagement
 		requires dropRedService : IStore
 		requires dropGreenService : IStore
 		requires dropBlueService : IStore
@@ -33,6 +35,9 @@ namespace components.environment {
 			
 		provides perceptionService : IPerception
 			= environmentManager.perceptionService
+			
+		provides managementService : IEnvManagement
+			= environmentManager.managementService
 			
 		part randomGenerator : Generator
 		part viewer : Viewer
