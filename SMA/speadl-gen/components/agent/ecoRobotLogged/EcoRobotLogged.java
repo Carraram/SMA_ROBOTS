@@ -3,9 +3,9 @@ package components.agent.ecoRobotLogged;
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.logging.Logging;
 import components.environment.Environment;
-import sma.agents.logging.interfaces.ILog;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.logging.interfaces.ILog;
 
 @SuppressWarnings("all")
 public abstract class EcoRobotLogged {

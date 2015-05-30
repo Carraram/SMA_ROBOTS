@@ -2,11 +2,11 @@ package components.environment;
 
 import sma.common.services.interfaces.IDisplay;
 import sma.common.services.interfaces.IGeneration;
-import sma.environment.services.interfaces.IEnvManagement;
-import sma.environment.services.interfaces.IEnvironmentViewing;
-import sma.environment.services.interfaces.IInteraction;
-import sma.environment.services.interfaces.IPerception;
-import sma.environment.services.interfaces.IStore;
+import sma.system.environment.services.interfaces.IEnvManagement;
+import sma.system.environment.services.interfaces.IEnvironmentViewing;
+import sma.system.environment.services.interfaces.IInteraction;
+import sma.system.environment.services.interfaces.IPerception;
+import sma.system.environment.services.interfaces.IStore;
 
 @SuppressWarnings("all")
 public abstract class EnvironmentManager {

@@ -1,8 +1,8 @@
 package components.control;
 
 import sma.common.services.interfaces.IPersistence;
-import sma.control.services.interfaces.IUserOperations;
-import sma.environment.services.interfaces.IEnvManagement;
+import sma.system.control.services.interfaces.IUserOperations;
+import sma.system.environment.services.interfaces.IEnvManagement;
 
 @SuppressWarnings("all")
 public abstract class SystemManager {

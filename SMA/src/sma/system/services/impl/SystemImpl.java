@@ -1,7 +1,7 @@
 package sma.system.services.impl;
 
-import sma.environment.services.impl.EnvironmentImpl;
-import sma.control.services.impl.UserAccessImpl;
+import sma.system.control.services.impl.UserAccessImpl;
+import sma.system.environment.services.impl.EnvironmentImpl;
 import components.control.UserAccess;
 import components.environment.Environment;
 import components.system.SMASystem;

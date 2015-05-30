@@ -2,8 +2,8 @@ package components.system;
 
 import components.control.UserAccess;
 import components.environment.Environment;
-import sma.control.services.interfaces.IUserOperations;
-import sma.environment.services.interfaces.IEnvManagement;
+import sma.system.control.services.interfaces.IUserOperations;
+import sma.system.environment.services.interfaces.IEnvManagement;
 
 @SuppressWarnings("all")
 public abstract class SMASystem {

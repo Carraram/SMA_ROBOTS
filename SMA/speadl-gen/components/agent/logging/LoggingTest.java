@@ -1,7 +1,7 @@
 package components.agent.logging;
 
 import components.agent.logging.Logging;
-import sma.agents.logging.interfaces.ILog;
+import sma.system.agents.logging.interfaces.ILog;
 
 @SuppressWarnings("all")
 public abstract class LoggingTest {

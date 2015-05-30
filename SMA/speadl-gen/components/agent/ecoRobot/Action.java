@@ -1,9 +1,9 @@
 package components.agent.ecoRobot;
 
-import sma.agents.ecoRobot.interfaces.IActionBuffer;
-import sma.agents.ecoRobot.interfaces.IActuators;
-import sma.agents.ecoRobot.interfaces.IExecute;
-import sma.environment.services.interfaces.IInteraction;
+import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
+import sma.system.agents.ecoRobot.interfaces.IActuators;
+import sma.system.agents.ecoRobot.interfaces.IExecute;
+import sma.system.environment.services.interfaces.IInteraction;
 
 @SuppressWarnings("all")
 public abstract class Action {

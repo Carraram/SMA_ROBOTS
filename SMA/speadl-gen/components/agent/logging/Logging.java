@@ -1,7 +1,7 @@
 package components.agent.logging;
 
-import sma.agents.logging.interfaces.ICreateLogger;
-import sma.agents.logging.interfaces.ILog;
+import sma.system.agents.logging.interfaces.ICreateLogger;
+import sma.system.agents.logging.interfaces.ILog;
 
 @SuppressWarnings("all")
 public abstract class Logging {

@@ -1,6 +1,6 @@
 import components.environment.Environment
 import components.control.UserAccess
-import sma.control.services.interfaces.IUserOperations
+import sma.system.control.services.interfaces.IUserOperations
 
 namespace components.system {
 	component SMASystem {

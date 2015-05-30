@@ -1,8 +1,8 @@
 package components.agent.ecoRobot;
 
-import sma.agents.ecoRobot.interfaces.IExecute;
-import sma.agents.ecoRobot.interfaces.IKnowledge;
-import sma.environment.services.interfaces.IPerception;
+import sma.system.agents.ecoRobot.interfaces.IExecute;
+import sma.system.agents.ecoRobot.interfaces.IKnowledge;
+import sma.system.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
 public abstract class Perception {

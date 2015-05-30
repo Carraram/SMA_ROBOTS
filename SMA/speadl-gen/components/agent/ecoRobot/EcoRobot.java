@@ -4,17 +4,17 @@ import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
 import components.agent.ecoRobot.Perception;
 import components.environment.Environment;
-import sma.agents.ecoRobot.interfaces.IActionBuffer;
-import sma.agents.ecoRobot.interfaces.IActuators;
-import sma.agents.ecoRobot.interfaces.IExecute;
-import sma.agents.ecoRobot.interfaces.IKnowledge;
-import sma.agents.ecoRobot.interfaces.IRobotOperations;
-import sma.agents.ecoRobot.interfaces.IRobotStatus;
-import sma.agents.logging.interfaces.ILog;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
-import sma.environment.services.interfaces.IInteraction;
-import sma.environment.services.interfaces.IPerception;
+import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
+import sma.system.agents.ecoRobot.interfaces.IActuators;
+import sma.system.agents.ecoRobot.interfaces.IExecute;
+import sma.system.agents.ecoRobot.interfaces.IKnowledge;
+import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
+import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
+import sma.system.agents.logging.interfaces.ILog;
+import sma.system.environment.services.interfaces.IInteraction;
+import sma.system.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
 public abstract class EcoRobot {

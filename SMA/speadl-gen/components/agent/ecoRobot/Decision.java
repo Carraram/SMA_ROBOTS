@@ -1,8 +1,8 @@
 package components.agent.ecoRobot;
 
-import sma.agents.ecoRobot.interfaces.IActionBuffer;
-import sma.agents.ecoRobot.interfaces.IExecute;
-import sma.agents.ecoRobot.interfaces.IKnowledge;
+import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
+import sma.system.agents.ecoRobot.interfaces.IExecute;
+import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 
 @SuppressWarnings("all")
 public abstract class Decision {

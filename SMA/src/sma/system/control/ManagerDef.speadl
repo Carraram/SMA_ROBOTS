@@ -1,0 +1,28 @@
+import sma.common.services.interfaces.IPersistence
+import sma.system.control.services.interfaces.IUserOperations
+import sma.system.environment.services.interfaces.IEnvManagement
+
+namespace components.control {
+	component Persistence {
+		provides persistenceService : IPersistence
+	}
+	
+	component SystemManager {
+		provides userService : IUserOperations
+		requires persistenceService : IPersistence
+		requires environmentManagementService : IEnvManagement
+	}
+	
+	component UserAccess {
+		provides userService : IUserOperations
+			= systemManager.userService
+			
+		requires envManagementService : IEnvManagement
+		
+		part persistence : Persistence
+		part systemManager : SystemManager {
+			bind persistenceService to persistence.persistenceService
+			bind environmentManagementService to envManagementService
+		}
+	}
+}

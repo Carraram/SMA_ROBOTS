@@ -1,6 +1,6 @@
 package components.environment;
 
-import sma.environment.services.interfaces.IStore;
+import sma.system.environment.services.interfaces.IStore;
 
 @SuppressWarnings("all")
 public abstract class Nest {
