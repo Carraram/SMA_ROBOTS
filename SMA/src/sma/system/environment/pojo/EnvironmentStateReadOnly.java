@@ -1,5 +1,6 @@
 package sma.system.environment.pojo;
 
+import java.util.List;
 import java.util.Map;
 
 import sma.common.pojo.Colors;
@@ -58,5 +59,13 @@ public class EnvironmentStateReadOnly {
      */
     public int getGridHeight() {
         return fullEnvironment.getGridHeight();
+    }
+    
+    /**
+     * Renvoie les positions des boîtes par couleur
+     * @return Positions des boîtes par couleur
+     */
+    public Map<ColorBox, List<Position>> getAllBoxes() {
+        return fullEnvironment.getBoxes();
     }
 }

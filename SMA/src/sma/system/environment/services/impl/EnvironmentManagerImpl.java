@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import sma.common.pojo.EmptyGridBoxException;
 import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
@@ -16,6 +17,7 @@ import sma.system.agents.pojo.RobotStateReadOnly;
 import sma.system.environment.pojo.ColorBox;
 import sma.system.environment.pojo.EnvironmentState;
 import sma.system.environment.pojo.EnvironmentStateReadOnly;
+import sma.system.environment.pojo.NotABoxException;
 import sma.system.environment.services.interfaces.IEnvManagement;
 import sma.system.environment.services.interfaces.IEnvironmentViewing;
 import sma.system.environment.services.interfaces.IInteraction;
@@ -109,6 +111,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             configurationNest = 50;
             configurationRandomTime[0] = 1;
             configurationRandomTime[1] = 15;
+            maxNumberOfBoxes = environment.getGridHeight() * environment.getGridWidth() * 50 / 100;
         }
         environment = new EnvironmentState(configurationEnv[1], configurationEnv[2]);
         displayMessage("*** Environnement configuré");
@@ -154,9 +157,8 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             }
 
             @Override
-            public ColorBox takeColorBox(Position boxPosition) {
-                // TODO Auto-generated method stub
-                return null;
+            public ColorBox takeColorBox(Position boxPosition) throws EmptyGridBoxException, NotABoxException {
+                return environment.removeBoxAtPosition(boxPosition);
             }
         };
     }

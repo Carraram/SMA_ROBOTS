@@ -1,9 +1,11 @@
 package sma.system.environment.services.interfaces;
 
+import sma.common.pojo.EmptyGridBoxException;
 import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Position;
 import sma.common.pojo.InvalidPositionException;
 import sma.system.environment.pojo.ColorBox;
+import sma.system.environment.pojo.NotABoxException;
 
 /**
  * Services d'interaction et de modification de l'environnement
@@ -22,6 +24,8 @@ public interface IInteraction extends IStore {
      * Récupère une boite de couleur de la grille
      * @param boxPosition Position de la boîte à ramasser
      * @return Boite de couleur
+     * @throws EmptyGridBoxException La case est vide
+     * @throws NotABoxException L'élément n'est pas une boîte
      */
-    ColorBox takeColorBox(Position boxPosition);
+    ColorBox takeColorBox(Position boxPosition) throws EmptyGridBoxException, NotABoxException;
 }

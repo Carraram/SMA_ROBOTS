@@ -1,10 +1,13 @@
 package sma.system.environment.pojo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import components.environment.Nest;
+import sma.common.pojo.EmptyGridBoxException;
 import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Grid;
@@ -56,6 +59,11 @@ public class EnvironmentState {
 	private final String nonEmptyGridBoxExceptionMessage = "La position %s n'est pas libre";
 	
 	/**
+     * Message d'erreur pour l'exception EmptyGridBoxException
+     */
+    private final String emptyGridBoxExceptionMessage = "La position %s est vide";
+	
+	/**
 	 * Cree l'etat de l'environnement
 	 * @param gridWidth Nombre de colonnes de la grille
 	 * @param gridHeight Nombre de lignes de la grille
@@ -75,7 +83,6 @@ public class EnvironmentState {
 	 * @throws NonEmptyGridBoxException  Position d'arrivée déjà occupée
 	 */
 	public void moveRobot(Position start, Position finish) throws NonEmptyGridBoxException {
-	    // TODO Gérer le fait qu'un autre robot puisse se déplacer sur la case avant notre robot
 	    // TODO Modifier le type de la variable robot (pour perception de l'env par les autres robots)
 	    grid.addElement(grid.getElement(start), finish);
 	    grid.removeElement(start);
@@ -186,5 +193,52 @@ public class EnvironmentState {
 	 */
 	public int getNumberOfElements() {
 	    return nbObjects;
+	}
+	
+	/**
+	 * Renvoie la liste des positions des boîtes pour chaque couleur
+	 * @return Positions des boîtes par couleur
+	 */
+	public Map<ColorBox, List<Position>> getBoxes () {
+	    Map<Position, Object> boites = grid.getObjectsByType(ColorBox.class);
+	    List<Position> greenBoxes = new ArrayList<Position>();
+	    List<Position> redBoxes = new ArrayList<Position>();
+	    List<Position> blueBoxes = new ArrayList<Position>();
+	    for (Entry<Position, Object> entry : boites.entrySet()) {
+	        ColorBox currentBox = (ColorBox) entry.getValue();
+	        switch (currentBox) {
+	        case BLUE:
+	            blueBoxes.add(entry.getKey());
+	            break;
+	        case RED:
+	            redBoxes.add(entry.getKey());
+	            break;
+	        case GREEN:
+	            greenBoxes.add(entry.getKey());
+	        }
+	    }
+	    Map<ColorBox, List<Position>> allBoxes = new HashMap<ColorBox, List<Position>>();
+	    allBoxes.put(ColorBox.BLUE, blueBoxes);
+	    allBoxes.put(ColorBox.RED, redBoxes);
+	    allBoxes.put(ColorBox.GREEN, greenBoxes);
+	    return allBoxes;
+	}
+	
+	/**
+	 * Retire une boîte de la grille et renvoie celle-ci
+	 * @param position Position de la boite
+	 * @return Boite retirée de la grille
+	 * @throws EmptyGridBoxException Case vide
+	 * @throws NotABoxException L'élément n'est pas une boîte
+	 */
+	public ColorBox removeBoxAtPosition(Position position) throws EmptyGridBoxException, NotABoxException {
+	    Object box = grid.removeElement(position);
+	    if (box == null) {
+	        throw new EmptyGridBoxException(String.format(emptyGridBoxExceptionMessage, position.toString()));
+	    }
+	    if (!(box instanceof ColorBox)) {
+	        throw new NotABoxException();
+	    }
+	    return (ColorBox) box;
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class Grid {
     /**
@@ -79,5 +80,20 @@ public class Grid {
             }
         }
         return elements;
+    }
+    
+    /**
+     * Renvoie les objets d'une classe donnée avec leur position
+     * @param type Classe de l'objet
+     * @return Objets de la classe recherchée, identifiés par leur position
+     */
+    public Map<Position, Object> getObjectsByType(Class<?> type) {
+        Map<Position, Object> objects = new HashMap<Position, Object>();
+        for(Entry<Position, Object> entry: gridElements.entrySet()){
+            if(type.isInstance(entry.getValue())) {
+                objects.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return objects;
     }
 }
