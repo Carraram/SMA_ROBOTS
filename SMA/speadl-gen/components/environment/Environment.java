@@ -7,7 +7,6 @@ import components.environment.Nest;
 import sma.common.services.interfaces.IDisplay;
 import sma.common.services.interfaces.IGeneration;
 import sma.system.environment.services.interfaces.IEnvManagement;
-import sma.system.environment.services.interfaces.IEnvironmentViewing;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.environment.services.interfaces.IPerception;
 import sma.system.environment.services.interfaces.IStore;
@@ -21,12 +20,6 @@ public abstract class Environment {
   }
   
   public interface Provides {
-    /**
-     * This can be called to access the provided port.
-     * 
-     */
-    public IEnvironmentViewing visualisationService();
-    
     /**
      * This can be called to access the provided port.
      * 
@@ -205,10 +198,6 @@ public abstract class Environment {
       	initParts();
       	initProvidedPorts();
       }
-    }
-    
-    public IEnvironmentViewing visualisationService() {
-      return this.environmentManager().viewingService();
     }
     
     public IInteraction interactionService() {

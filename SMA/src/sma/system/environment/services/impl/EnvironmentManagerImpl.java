@@ -201,23 +201,6 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
     }
 
     @Override
-    protected IEnvironmentViewing make_viewingService() {
-        return new IEnvironmentViewing() {
-
-            @Override
-            public void viewState() {
-                Map<Colors, Position> nids = environment.getNests();
-                String etatNids = "";
-                etatNids += "Nid rouge : " + nids.get(Colors.RED);
-                etatNids += "   Nid vert : " + nids.get(Colors.GREEN);
-                etatNids += "   Nid bleu : " + nids.get(Colors.BLUE);
-                String etatBoites = "Nombre de boites dans l'environnement : " + environment.getNumberOfBoxes();
-                EnvironmentManagerImpl.this.requires().displayService().displayMessages(new String[] {etatNids, etatBoites});
-            }
-        };
-    }
-
-    @Override
     protected IEnvManagement make_managementService() {
         return new IEnvManagement() {
 
