@@ -19,7 +19,6 @@ import sma.system.environment.pojo.EnvironmentState;
 import sma.system.environment.pojo.EnvironmentStateReadOnly;
 import sma.system.environment.pojo.NotABoxException;
 import sma.system.environment.services.interfaces.IEnvManagement;
-import sma.system.environment.services.interfaces.IEnvironmentViewing;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.environment.services.interfaces.IPerception;
 import components.environment.EnvironmentManager;
