@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
-import sma.common.pojo.ServiceUnavailableException;
+import sma.common.pojo.exceptions.ServiceUnavailableException;
 import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
 import sma.system.agents.ecoRobot.interfaces.IActuators;
 import sma.system.agents.ecoRobot.interfaces.IExecute;

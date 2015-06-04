@@ -3,8 +3,8 @@ package sma.common.pojo.interfaces;
 import java.util.List;
 import java.util.Map;
 
-import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Position;
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 
 public interface IGridOperations {
     /**

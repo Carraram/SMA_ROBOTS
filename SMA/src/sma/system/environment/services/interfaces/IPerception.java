@@ -3,9 +3,9 @@ package sma.system.environment.services.interfaces;
 import java.util.Map;
 
 import sma.common.pojo.Colors;
-import sma.common.pojo.InvalidPositionException;
 import sma.common.pojo.Position;
-import sma.common.pojo.ServiceUnavailableException;
+import sma.common.pojo.exceptions.InvalidPositionException;
+import sma.common.pojo.exceptions.ServiceUnavailableException;
 
 /**
  * Services de perception des éléments de l'environnement

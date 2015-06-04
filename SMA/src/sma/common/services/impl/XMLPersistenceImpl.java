@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import com.thoughtworks.xstream.XStream;
 
-import sma.common.pojo.PersistedObjectNotFoundException;
+import sma.common.pojo.exceptions.PersistedObjectNotFoundException;
 import sma.common.services.interfaces.IPersistence;
 import components.control.Persistence;
 

@@ -7,13 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import components.environment.Nest;
-import sma.common.pojo.EmptyGridBoxException;
-import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Grid;
 import sma.common.pojo.Position;
-import sma.common.pojo.InvalidPositionException;
+import sma.common.pojo.exceptions.EmptyGridBoxException;
+import sma.common.pojo.exceptions.InvalidPositionException;
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 import sma.common.pojo.interfaces.IGridOperations;
+import sma.system.environment.pojo.exceptions.NotABoxException;
 import sma.system.environment.pojo.interfaces.IEnvironmentOperations;
 
 /**

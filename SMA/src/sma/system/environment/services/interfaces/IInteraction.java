@@ -1,12 +1,12 @@
 package sma.system.environment.services.interfaces;
 
-import sma.common.pojo.EmptyGridBoxException;
-import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Position;
-import sma.common.pojo.InvalidPositionException;
-import sma.common.pojo.ServiceUnavailableException;
+import sma.common.pojo.exceptions.EmptyGridBoxException;
+import sma.common.pojo.exceptions.InvalidPositionException;
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
+import sma.common.pojo.exceptions.ServiceUnavailableException;
 import sma.system.environment.pojo.ColorBox;
-import sma.system.environment.pojo.NotABoxException;
+import sma.system.environment.pojo.exceptions.NotABoxException;
 
 /**
  * Services d'interaction et de modification de l'environnement

@@ -1,6 +1,6 @@
 package sma.system.environment.services.interfaces;
 
-import sma.common.pojo.ServiceUnavailableException;
+import sma.common.pojo.exceptions.ServiceUnavailableException;
 import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 
 public interface IStore {

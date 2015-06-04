@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import sma.common.pojo.Colors;
-import sma.common.pojo.EmptyGridBoxException;
-import sma.common.pojo.InvalidPositionException;
-import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Position;
+import sma.common.pojo.exceptions.EmptyGridBoxException;
+import sma.common.pojo.exceptions.InvalidPositionException;
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 import sma.system.environment.pojo.ColorBox;
-import sma.system.environment.pojo.NotABoxException;
-
+import sma.system.environment.pojo.exceptions.NotABoxException;
 import components.environment.Nest;
 
 public interface IEnvironmentOperations extends IEnvironmentReadOnly {
