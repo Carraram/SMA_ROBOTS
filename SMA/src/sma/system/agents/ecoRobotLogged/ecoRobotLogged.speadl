@@ -13,12 +13,6 @@ import sma.common.pojo.Colors
 
 import components.environment.Environment
 
-import sma.system.agents.ecoRobot.interfaces.IActuators
-
-import sma.system.agents.ecoRobot.interfaces.ISensors
-
-import sma.system.agents.ecoRobot.interfaces.IKnowledge
-
 import sma.system.environment.services.interfaces.IInteraction
 
 import sma.system.environment.services.interfaces.IPerception
