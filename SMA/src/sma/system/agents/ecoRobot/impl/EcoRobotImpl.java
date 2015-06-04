@@ -49,8 +49,8 @@ public class EcoRobotImpl extends EcoRobot {
 
 			};
 
-			private final IAgentOperations robotState = new RobotState(maxEnergy,
-					robotColor, initPosition);
+			private final IAgentOperations robotState = new RobotState(
+					maxEnergy, robotColor, initPosition);
 
 			private final AtomicInteger balance = new AtomicInteger();
 
@@ -113,7 +113,6 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
-<<<<<<< HEAD
 								try {
 									Position position = null;
 									int offset = 5;
@@ -122,23 +121,13 @@ public class EcoRobotImpl extends EcoRobot {
 									Map<Position, Object> lookAround = requires()
 											.envPerception().lookAround(
 													position, offset);
-								} catch (InvalidPositionException e) {
+								} catch (ServiceUnavailableException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								} catch (sma.common.pojo.exceptions.InvalidPositionException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
-=======
-								// Ajouter des informations au knowledge
-								Object infos;
-                                try {
-                                    infos = requires().sensors().getNests();
-                                    // obtenir la perception autour du robot
-                                    requires().knowledge().setInfos(infos);
-                                } catch (ServiceUnavailableException e) {
-                                    // TODO Auto-generated catch block
-                                    e.printStackTrace();
-                                }
-								
->>>>>>> branch 'dev' of https://github.com/Carraram/SMA_ROBOTS
 							}
 						};
 					}
