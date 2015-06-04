@@ -1,4 +1,4 @@
-package sma.common.pojo;
+package sma.common.pojo.exceptions;
 
 public class NonEmptyGridBoxException extends Exception {
     /**

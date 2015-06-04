@@ -4,8 +4,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-public class Grid {
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
+import sma.common.pojo.interfaces.IGridOperations;
+
+public class Grid implements IGridOperations {
     /**
      * Ensemble des éléments identifiés par leur position
      */
@@ -25,12 +29,7 @@ public class Grid {
         gridElements = Collections.synchronizedMap(gridElements);
     }
     
-    /**
-     * Ajoute un élément dans la grille
-     * @param element Element à ajouter
-     * @param elementPosition Position dans la grille
-     * @throws NonEmptyGridBoxException Ajout d'un élément sur une case déjà occupée
-     */
+    @Override
     public void addElement(Object element, Position elementPosition) throws NonEmptyGridBoxException {
         if (!isEmptyGridBox(elementPosition)) {
             throw new NonEmptyGridBoxException(String.format(nonEmptyGridBoxExceptionMessage, elementPosition.toString()));
@@ -38,38 +37,22 @@ public class Grid {
         gridElements.put(elementPosition, element);
     }
     
-    /**
-     * Retire un élément de la grille et le renvoie
-     * @param elementPosition Position de l'élément dans la grille
-     * @return Element retiré
-     */
+    @Override
     public Object removeElement(Position elementPosition) {
         return gridElements.remove(elementPosition);
     }
     
-    /**
-     * Indique si la case située à la position indiquée est vide
-     * @param position Position de la case
-     * @return TRUE si la case est vide, FALSE sinon
-     */
+    @Override
     public boolean isEmptyGridBox(Position position) {
         return gridElements.get(position) == null;
     }
     
-    /**
-     * Renvoie l'élément situé à la position indiquée
-     * @param position Position dans la grille
-     * @return L'élément s'il existe, NULL sinon
-     */
+    @Override
     public Object getElement(Position position) {
         return gridElements.get(position);
     }
     
-    /**
-     * Renvoie les éléments situés aux positions données
-     * @param positions Liste des positions
-     * @return Map liant les positions à l'objet qu'elles contiennent
-     */
+    @Override
     public Map<Position, Object> getElementsForPositions(List<Position> positions) {
         Map<Position, Object> elements = new HashMap<Position, Object>();
         for (Position current : positions) {
@@ -79,5 +62,16 @@ public class Grid {
             }
         }
         return elements;
+    }
+    
+    @Override
+    public Map<Position, Object> getObjectsByType(Class<?> type) {
+        Map<Position, Object> objects = new HashMap<Position, Object>();
+        for(Entry<Position, Object> entry: gridElements.entrySet()){
+            if(type.isInstance(entry.getValue())) {
+                objects.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return objects;
     }
 }

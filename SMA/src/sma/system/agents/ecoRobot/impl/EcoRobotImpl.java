@@ -7,15 +7,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import sma.common.pojo.Colors;
 import sma.common.pojo.InvalidPositionException;
 import sma.common.pojo.Position;
+import sma.common.pojo.exceptions.ServiceUnavailableException;
 import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
 import sma.system.agents.ecoRobot.interfaces.IActuators;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
 import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
-import sma.system.agents.ecoRobot.interfaces.ISensors;
 import sma.system.agents.pojo.RobotState;
 import sma.system.environment.services.interfaces.IInteraction;
+import sma.system.agents.pojo.interfaces.IAgentOperations;
 import sma.system.environment.services.interfaces.IPerception;
 import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
@@ -25,7 +26,6 @@ import components.agent.ecoRobot.ReusableJoiningComp;
 import components.agent.ecoRobot.UniversalProvider;
 import components.agent.ecoRobot.ReusableJoiningComp.JoiningEntity;
 import components.environment.Environment;
-import components.environment.Nest;
 
 public class EcoRobotImpl extends EcoRobot {
 
@@ -49,7 +49,7 @@ public class EcoRobotImpl extends EcoRobot {
 
 			};
 
-			private final RobotState robotState = new RobotState(maxEnergy,
+			private final IAgentOperations robotState = new RobotState(maxEnergy,
 					robotColor, initPosition);
 
 			private final AtomicInteger balance = new AtomicInteger();
@@ -97,7 +97,7 @@ public class EcoRobotImpl extends EcoRobot {
 					}
 
 					@Override
-					public RobotState getRobotState() {
+					public IAgentOperations getRobotState() {
 						return robotState;
 					}
 				};
@@ -113,6 +113,7 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
+<<<<<<< HEAD
 								try {
 									Position position = null;
 									int offset = 5;
@@ -125,6 +126,19 @@ public class EcoRobotImpl extends EcoRobot {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
+=======
+								// Ajouter des informations au knowledge
+								Object infos;
+                                try {
+                                    infos = requires().sensors().getNests();
+                                    // obtenir la perception autour du robot
+                                    requires().knowledge().setInfos(infos);
+                                } catch (ServiceUnavailableException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+								
+>>>>>>> branch 'dev' of https://github.com/Carraram/SMA_ROBOTS
 							}
 						};
 					}

@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 
 import sma.system.agents.ecoRobotLogged.interfaces.IBankManage
 
+=======
+>>>>>>> branch 'dev' of https://github.com/Carraram/SMA_ROBOTS
 import sma.system.agents.logging.interfaces.ILog
 
 import components.agent.ecoRobot.EcoRobot
@@ -12,10 +15,13 @@ import sma.common.pojo.Position
 import sma.common.pojo.Colors
 
 import components.environment.Environment
+<<<<<<< HEAD
 
 import sma.system.environment.services.interfaces.IInteraction
 
 import sma.system.environment.services.interfaces.IPerception
+=======
+>>>>>>> branch 'dev' of https://github.com/Carraram/SMA_ROBOTS
 
 namespace components.agent.ecoRobotLogged {
 

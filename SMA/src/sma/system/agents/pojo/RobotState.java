@@ -2,10 +2,12 @@ package sma.system.agents.pojo;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.pojo.interfaces.IAgentOperations;
+import sma.system.environment.pojo.ColorBox;
 /**
  * Etat d'un robot
  */
-public class RobotState {
+public class RobotState implements IAgentOperations {
 	private final float maxEnergy;
 	private final Colors color;
 	private float energyLevel;
@@ -27,10 +29,7 @@ public class RobotState {
 		updateSpeed();
 	}
 	
-	/**
-	 * Augmente l'énergie et met la vitesse à jour
-	 * @param energy Energie reçue
-	 */
+	@Override
 	public void increaseEnergy(float energy) {
 		float totalEnergy = energyLevel += energy;
 		if (totalEnergy > maxEnergy) {
@@ -41,9 +40,7 @@ public class RobotState {
 		updateSpeed();
 	}
 	
-	/**
-	 * Met à jour la vitesse du robot en fonction de son niveau d'énergie
-	 */
+	@Override
 	public void updateSpeed() {
 		float oneThird = maxEnergy / 3;
 		float twoThirds = 2 * maxEnergy / 3;
@@ -61,27 +58,39 @@ public class RobotState {
 		}
 	}
 	
+	@Override
 	public void updatePosition(Position newPosition) {
 	    position = newPosition;
 	}
 	
+	@Override
 	public Colors getRobotColor() {
 		return color;
 	}
 	
+	@Override
 	public float getMaxEnergy() {
 		return maxEnergy;
 	}
 	
+	@Override
 	public float getCurrentEnergyLevel() {
 		return energyLevel;
 	}
 	
+	@Override
 	public float getCurrentSpeed() {
 		return speed;
 	}
 	
+	@Override
 	public Position getCurrentPosition() {
 	    return position;
 	}
+
+    @Override
+    public ColorBox getColorBox() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 }

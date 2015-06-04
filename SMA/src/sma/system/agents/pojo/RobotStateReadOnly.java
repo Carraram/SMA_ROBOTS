@@ -2,54 +2,50 @@ package sma.system.agents.pojo;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.pojo.interfaces.IAgentOperations;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.pojo.ColorBox;
 
-public class RobotStateReadOnly {
+public class RobotStateReadOnly implements IAgentReadOnly {
 
-    private final float maxEnergy;
-    private final Colors color;
-    private float energyLevel;
-    private float speed;
-    private Position position;
-    private ColorBox colorBox;
+    private final IAgentOperations fullAgent;
     
     /**
      * Crée l'état d'un robot
-     * @param maxEnergy Energie maximale du robot
-     * @param energyLevel Energie courante du robot
-     * @param color Couleur du robot
-     * @param initPosition Position initiale du robot
+     * @param fullAgent Agent dont on veut lire l'état
      */
-    public RobotStateReadOnly(float maxEnergy, float energyLevel, Colors color, Position initPosition, ColorBox colorBox) {
+    public RobotStateReadOnly(IAgentOperations fullAgent) {
         super();
-        this.maxEnergy = maxEnergy;
-        this.color = color;
-        this.position = initPosition;
-        this.colorBox = colorBox;
-        this.energyLevel = energyLevel;
+        this.fullAgent = fullAgent;
     }
     
+    @Override
     public ColorBox getColorBox() {
-        return colorBox;
+        return fullAgent.getColorBox();
     }
-    
+
+    @Override
     public Colors getRobotColor() {
-        return color;
+        return fullAgent.getRobotColor();
     }
-    
+
+    @Override
     public float getMaxEnergy() {
-        return maxEnergy;
+        return fullAgent.getMaxEnergy();
     }
-    
+
+    @Override
     public float getCurrentEnergyLevel() {
-        return energyLevel;
+        return fullAgent.getCurrentEnergyLevel();
     }
-    
+
+    @Override
     public float getCurrentSpeed() {
-        return speed;
+        return fullAgent.getCurrentSpeed();
     }
-    
+
+    @Override
     public Position getCurrentPosition() {
-        return position;
+        return fullAgent.getCurrentPosition();
     }
 }

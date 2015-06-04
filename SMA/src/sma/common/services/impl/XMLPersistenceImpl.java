@@ -10,7 +10,7 @@ import java.util.Map.Entry;
 
 import com.thoughtworks.xstream.XStream;
 
-import sma.common.pojo.PersistedObjectNotFoundException;
+import sma.common.pojo.exceptions.PersistedObjectNotFoundException;
 import sma.common.services.interfaces.IPersistence;
 import components.control.Persistence;
 
@@ -45,7 +45,6 @@ public class XMLPersistenceImpl extends Persistence {
             public void saveObject(Object objectToSave, String objectName) {
                 try {
                     OutputStream output = new FileOutputStream(saveDirectory + objectName + "-persisted.xml");
-                    //System.out.println(xstream.toXML(objectToSave));
                     xstream.toXML(objectToSave, output);
                 } catch (FileNotFoundException e) {
                     System.err.println("Impossible de sauvegarder l'état de l'objet " + objectName);

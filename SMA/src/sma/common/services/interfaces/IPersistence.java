@@ -1,6 +1,6 @@
 package sma.common.services.interfaces;
 
-import sma.common.pojo.PersistedObjectNotFoundException;
+import sma.common.pojo.exceptions.PersistedObjectNotFoundException;
 
 /**
  * Service de persistance
