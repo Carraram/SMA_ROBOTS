@@ -11,15 +11,14 @@ import sma.system.agents.ecoRobot.interfaces.IExecute;
 import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
-import sma.system.agents.ecoRobot.interfaces.ISensors;
 import sma.system.agents.pojo.RobotState;
+import sma.system.agents.pojo.interfaces.IAgentOperations;
 import sma.system.environment.services.interfaces.IPerception;
 import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.ecoRobot.Perception;
 import components.environment.Environment;
-import components.environment.Nest;
 
 public class EcoRobotImpl extends EcoRobot {
 
@@ -43,7 +42,7 @@ public class EcoRobotImpl extends EcoRobot {
 
 			};
 
-			private final RobotState robotState = new RobotState(maxEnergy,
+			private final IAgentOperations robotState = new RobotState(maxEnergy,
 					robotColor, initPosition);
 
 			private final AtomicInteger balance = new AtomicInteger();
@@ -91,7 +90,7 @@ public class EcoRobotImpl extends EcoRobot {
 					}
 
 					@Override
-					public RobotState getRobotState() {
+					public IAgentOperations getRobotState() {
 						return robotState;
 					}
 				};

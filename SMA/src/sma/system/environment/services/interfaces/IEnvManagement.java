@@ -1,6 +1,6 @@
 package sma.system.environment.services.interfaces;
 
-import sma.system.environment.pojo.EnvironmentStateReadOnly;
+import sma.system.environment.pojo.interfaces.IEnvironmentReadOnly;
 
 /**
  * Services de management de l'environnement
@@ -10,7 +10,7 @@ public interface IEnvManagement {
      * Obtenir l'état courant de l'environnement
      * @return Etat de l'environnement en lecture seule
      */
-    EnvironmentStateReadOnly getEnvironmentState();
+    IEnvironmentReadOnly getEnvironmentState();
     
     /**
      * Arrête l'exécution de l'environnement

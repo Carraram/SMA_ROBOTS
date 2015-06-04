@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.logging.Logger;
 
 import sma.system.agents.logging.interfaces.ICreateLogger;
 import sma.system.agents.logging.interfaces.ILog;

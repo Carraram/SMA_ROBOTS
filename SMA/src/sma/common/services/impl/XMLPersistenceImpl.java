@@ -45,7 +45,6 @@ public class XMLPersistenceImpl extends Persistence {
             public void saveObject(Object objectToSave, String objectName) {
                 try {
                     OutputStream output = new FileOutputStream(saveDirectory + objectName + "-persisted.xml");
-                    //System.out.println(xstream.toXML(objectToSave));
                     xstream.toXML(objectToSave, output);
                 } catch (FileNotFoundException e) {
                     System.err.println("Impossible de sauvegarder l'état de l'objet " + objectName);

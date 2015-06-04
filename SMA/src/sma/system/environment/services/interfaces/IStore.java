@@ -1,6 +1,6 @@
 package sma.system.environment.services.interfaces;
 
-import sma.system.agents.pojo.RobotStateReadOnly;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 
 public interface IStore {
     /**
@@ -8,5 +8,5 @@ public interface IStore {
      * @param robotState Etat du robot qui dépose la boite
      * @return Energie reçue par le robot en fonction de sa couleur et de la couleur de la boite qu'il transporte
      */
-	float dropColorBox(RobotStateReadOnly robotState);
+	float dropColorBox(IAgentReadOnly robotState);
 }

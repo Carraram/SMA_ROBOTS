@@ -5,67 +5,51 @@ import java.util.Map;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.environment.pojo.interfaces.IEnvironmentOperations;
+import sma.system.environment.pojo.interfaces.IEnvironmentReadOnly;
 
-public class EnvironmentStateReadOnly {
+public class EnvironmentStateReadOnly implements IEnvironmentReadOnly {
     /**
      * Etat de l'environnement
      */
-    private final EnvironmentState fullEnvironment;
+    private final IEnvironmentOperations fullEnvironment;
 
     /**
      * Construit l'état de l'environnement en lecture seule
      * @param fullEnvironment Etat de l'environnement
      */
-    public EnvironmentStateReadOnly(EnvironmentState fullEnvironment) {
+    public EnvironmentStateReadOnly(IEnvironmentOperations fullEnvironment) {
         super();
         this.fullEnvironment = fullEnvironment;
     }
     
-    /**
-     * Renvoie le nombre courant de boîtes dans l'environnement
-     * @return Nombre de boîtes
-     */
+    @Override
     public int getNumberOfBoxes() {
         return fullEnvironment.getNumberOfBoxes();
     }
     
-    /**
-     * Renvoie le nombre courant d'éléments dans l'environnement
-     * @return Nombre courant d'éléments
-     */
-    public int getNumberOfElementsInGrid() {
-        return fullEnvironment.getNumberOfElements();
-    }
-    
-    /**
-     * Renvoie les nids (couleur) avec leur position dans la grille
-     * @return Nids avec leur position
-     */
+    @Override
     public Map<Colors, Position> getNestsWithPositions() {
-        return fullEnvironment.getNests();
+        return fullEnvironment.getNestsWithPositions();
     }
     
-    /**
-     * Renvoie la largeur de la grille
-     * @return Largeur de la grille
-     */
+    @Override
     public int getGridWidth() {
         return fullEnvironment.getGridWidth();
     }
     
-    /**
-     * Renvoie la hauteur de la grille
-     * @return Hauteur de la grille
-     */
+    @Override
     public int getGridHeight() {
         return fullEnvironment.getGridHeight();
     }
     
-    /**
-     * Renvoie les positions des boîtes par couleur
-     * @return Positions des boîtes par couleur
-     */
+    @Override
     public Map<ColorBox, List<Position>> getAllBoxes() {
-        return fullEnvironment.getBoxes();
+        return fullEnvironment.getAllBoxes();
+    }
+
+    @Override
+    public int getNumberOfElements() {
+        return fullEnvironment.getNumberOfElements();
     }
 }

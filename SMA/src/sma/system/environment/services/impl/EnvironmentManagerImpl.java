@@ -14,10 +14,12 @@ import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
 import sma.common.pojo.InvalidPositionException;
 import sma.system.agents.pojo.RobotStateReadOnly;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.pojo.ColorBox;
 import sma.system.environment.pojo.EnvironmentState;
 import sma.system.environment.pojo.EnvironmentStateReadOnly;
 import sma.system.environment.pojo.NotABoxException;
+import sma.system.environment.pojo.interfaces.IEnvironmentOperations;
 import sma.system.environment.services.interfaces.IEnvManagement;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.environment.services.interfaces.IPerception;
@@ -30,7 +32,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
     /**
      * Etat de l'environnement
      */
-    private EnvironmentState environment;
+    private IEnvironmentOperations environment;
 
     /**
      * Configuration de l'environnement
@@ -132,7 +134,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         return new IInteraction() {
 
             @Override
-            public float dropColorBox(RobotStateReadOnly robotState) {
+            public float dropColorBox(IAgentReadOnly robotState) {
                 float energieRecue = 0.F;
                 switch (robotState.getColorBox()) {
                 case BLUE:
@@ -168,7 +170,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
 
             @Override
             public Map<Colors, Position> getNests() {
-                return environment.getNests();
+                return environment.getNestsWithPositions();
             }
 
             @Override
