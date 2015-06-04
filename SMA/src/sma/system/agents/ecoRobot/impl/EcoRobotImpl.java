@@ -5,6 +5,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.common.pojo.ServiceUnavailableException;
 import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
 import sma.system.agents.ecoRobot.interfaces.IActuators;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
@@ -107,9 +108,16 @@ public class EcoRobotImpl extends EcoRobot {
 							@Override
 							public void execute() {
 								// Ajouter des informations au knowledge
-								Object infos = requires().sensors().getNests();
-								// obtenir la perception autour du robot
-								requires().knowledge().setInfos(infos);
+								Object infos;
+                                try {
+                                    infos = requires().sensors().getNests();
+                                    // obtenir la perception autour du robot
+                                    requires().knowledge().setInfos(infos);
+                                } catch (ServiceUnavailableException e) {
+                                    // TODO Auto-generated catch block
+                                    e.printStackTrace();
+                                }
+								
 							}
 						};
 					}

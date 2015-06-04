@@ -1,6 +1,5 @@
 package sma.system.environment.services.impl;
 
-import sma.system.agents.pojo.RobotStateReadOnly;
 import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.services.interfaces.IStore;
 import components.environment.Nest;

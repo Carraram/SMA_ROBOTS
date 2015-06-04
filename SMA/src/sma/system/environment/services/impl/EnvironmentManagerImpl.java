@@ -13,7 +13,7 @@ import sma.common.pojo.NonEmptyGridBoxException;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
 import sma.common.pojo.InvalidPositionException;
-import sma.system.agents.pojo.RobotStateReadOnly;
+import sma.common.pojo.ServiceUnavailableException;
 import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.pojo.ColorBox;
 import sma.system.environment.pojo.EnvironmentState;
@@ -58,6 +58,11 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
      * Nombre de boîtes maximal dans l'environnement
      */
     private int maxNumberOfBoxes;
+    
+    /**
+     * Indique si l'environnement est en cours d'exécution
+     */
+    private boolean environmentRunning;
 
     /**
      * Gestion du thread générateur
@@ -75,6 +80,7 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         nestInstances[1] = blueNest;
         nestInstances[2] = greenNest;
         executor = Executors.newSingleThreadExecutor();
+        environmentRunning = false;
     }
 
     @Override
@@ -134,7 +140,8 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         return new IInteraction() {
 
             @Override
-            public float dropColorBox(IAgentReadOnly robotState) {
+            public float dropColorBox(IAgentReadOnly robotState) throws ServiceUnavailableException {
+                checkAvailability();
                 float energieRecue = 0.F;
                 switch (robotState.getColorBox()) {
                 case BLUE:
@@ -151,14 +158,16 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
             }
 
             @Override
-            public void move(Position initPosition, Position newPosition) throws NonEmptyGridBoxException, InvalidPositionException {
+            public void move(Position initPosition, Position newPosition) throws NonEmptyGridBoxException, InvalidPositionException, ServiceUnavailableException {
+                checkAvailability();
                 if (environment.isValidShifting(initPosition, newPosition)) {
                     environment.moveRobot(initPosition, newPosition);
                 }
             }
 
             @Override
-            public ColorBox takeColorBox(Position boxPosition) throws EmptyGridBoxException, NotABoxException {
+            public ColorBox takeColorBox(Position boxPosition) throws EmptyGridBoxException, NotABoxException, ServiceUnavailableException {
+                checkAvailability();
                 return environment.removeBoxAtPosition(boxPosition);
             }
         };
@@ -169,13 +178,15 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         return new IPerception() {
 
             @Override
-            public Map<Colors, Position> getNests() {
+            public Map<Colors, Position> getNests() throws ServiceUnavailableException {
+                checkAvailability();
                 return environment.getNestsWithPositions();
             }
 
             @Override
             public Map<Position, Object> lookAround(Position position,
-                    int offset) throws InvalidPositionException {
+                    int offset) throws InvalidPositionException, ServiceUnavailableException {
+                checkAvailability();
                 if (!environment.isValidPosition(position)) {
                     throw new InvalidPositionException(String.format(invalidPositionExceptionMessage, position.toString()));
                 }
@@ -207,31 +218,45 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
 
             @Override
             public void stopEnvironmentExecution() {
-                displayMessage("========== ARRET DE L'ENVIRONNEMENT ==========");
-                executor.shutdownNow();
-                // On attend que tous les threads s'arrêtent
-                // On relance la demande d'arrêt toutes les 10s si certains threads ne sont pas terminés
-                while (!executor.isTerminated()) {
-                    try {
-                        executor.awaitTermination(10, TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        displayError("Environment : generator didn't stop, shutdown now", null);
-                        executor.shutdownNow();
+                try {
+                    checkAvailability();
+                    displayMessage("========== ARRET DE L'ENVIRONNEMENT ==========");
+                    executor.shutdownNow();
+                    // On attend que tous les threads s'arrêtent
+                    // On relance la demande d'arrêt toutes les 10s si certains threads ne sont pas terminés
+                    while (!executor.isTerminated()) {
+                        try {
+                            executor.awaitTermination(10, TimeUnit.SECONDS);
+                        } catch (InterruptedException e) {
+                            displayError("Environment : generator didn't stop, shutdown now", null);
+                            executor.shutdownNow();
+                        }
                     }
+                    environmentRunning = false;
+                    displayMessage("*** Générateur arrêté");
+                } catch (ServiceUnavailableException e1) {
+                    displayMessage("L'environnement est déjà arrêté");
+                    // Ne rien faire
                 }
-                displayMessage("*** Générateur arrêté");
             }
 
             @Override
             public void startEnvironmentExecution() {
-                displayMessage("========== LANCEMENT DE L'ENVIRONNEMENT ==========");
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        runRandomBoxGenerator();
-                    }
-                });
-                displayMessage("*** Générateur lancé");
+                try {
+                    checkAvailability();
+                    displayMessage("L'environnement est déjà en cours d'exécution");
+                    // Ne rien faire
+                } catch (ServiceUnavailableException e) {
+                    displayMessage("========== LANCEMENT DE L'ENVIRONNEMENT ==========");
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            runRandomBoxGenerator();
+                        }
+                    });
+                    environmentRunning = true;
+                    displayMessage("*** Générateur lancé");
+                }
             }
 
             @Override
@@ -386,6 +411,16 @@ public class EnvironmentManagerImpl extends EnvironmentManager {
         }
         if (ex != null) {
             ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Vérifie si l'environnement est en cours d'exécution
+     * @throws ServiceUnavailableException Environnement arrêté
+     */
+    private void checkAvailability() throws ServiceUnavailableException {
+        if (!environmentRunning) {
+            throw new ServiceUnavailableException("L'environnement est arrêté");
         }
     }
 }

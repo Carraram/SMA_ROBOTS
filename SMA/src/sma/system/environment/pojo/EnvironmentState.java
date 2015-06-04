@@ -80,7 +80,6 @@ public class EnvironmentState implements IEnvironmentOperations {
 	
 	@Override
 	public void moveRobot(Position start, Position finish) throws NonEmptyGridBoxException {
-	    // TODO Modifier le type de la variable robot (pour perception de l'env par les autres robots)
 	    grid.addElement(grid.getElement(start), finish);
 	    grid.removeElement(start);
 	}
@@ -118,7 +117,16 @@ public class EnvironmentState implements IEnvironmentOperations {
 	    if (!grid.isEmptyGridBox(finish)) {
 	        throw new NonEmptyGridBoxException(String.format(nonEmptyGridBoxExceptionMessage, finish.toString()));
 	    }
-	    // TODO Vérifier si déplacement d'une seule case
+	    // Vérification de la distance entre les deux positions
+	    int xStart = start.getCoordX();
+	    int yStart = start.getCoordY();
+	    int xFinish = finish.getCoordX();
+	    int yFinish = finish.getCoordY();
+	    boolean xOk = (xStart - 1 <= xFinish) && (xFinish <= xStart + 1);
+	    boolean yOk = (yStart - 1 <= yFinish) && (yFinish <= yStart + 1);
+	    if(!(xOk && yOk)) {
+	        throw new InvalidPositionException("Les positions de départ et d'arrivée doivent être adjacentes");
+	    }
 	    return true;
 	}
 	
