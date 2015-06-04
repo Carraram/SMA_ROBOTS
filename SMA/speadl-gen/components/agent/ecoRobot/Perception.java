@@ -1,7 +1,6 @@
 package components.agent.ecoRobot;
 
 import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
@@ -11,13 +10,7 @@ public abstract class Perception {
      * This can be called by the implementation to access this required port.
      * 
      */
-    public IPerception sensors();
-    
-    /**
-     * This can be called by the implementation to access this required port.
-     * 
-     */
-    public IKnowledge knowledge();
+    public IPerception envPerception();
   }
   
   public interface Component extends Perception.Provides {

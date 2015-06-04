@@ -6,10 +6,29 @@ import components.environment.Environment;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
 import sma.system.agents.logging.interfaces.ILog;
+import sma.system.environment.services.interfaces.IInteraction;
+import sma.system.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
 public abstract class EcoRobotLogged {
   public interface Requires {
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public Environment env();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IInteraction envLocalInteraction();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IPerception envLocalPerception();
   }
   
   public interface Component extends EcoRobotLogged.Provides {
@@ -24,13 +43,6 @@ public abstract class EcoRobotLogged {
   }
   
   public interface Parts {
-    /**
-     * This can be called by the implementation to access the part and its provided ports.
-     * It will be initialized after the required ports are initialized and before the provided ports are initialized.
-     * 
-     */
-    public Environment.Component env();
-    
     /**
      * This can be called by the implementation to access the part and its provided ports.
      * It will be initialized after the required ports are initialized and before the provided ports are initialized.
@@ -52,25 +64,12 @@ public abstract class EcoRobotLogged {
     private final EcoRobotLogged implementation;
     
     public void start() {
-      assert this.env != null: "This is a bug.";
-      ((Environment.ComponentImpl) this.env).start();
       assert this.l != null: "This is a bug.";
       ((Logging.ComponentImpl) this.l).start();
       assert this.b != null: "This is a bug.";
       ((EcoRobot.ComponentImpl) this.b).start();
       this.implementation.start();
       this.implementation.started = true;
-    }
-    
-    private void init_env() {
-      assert this.env == null: "This is a bug.";
-      assert this.implem_env == null: "This is a bug.";
-      this.implem_env = this.implementation.make_env();
-      if (this.implem_env == null) {
-      	throw new RuntimeException("make_env() in components.agent.ecoRobotLogged.EcoRobotLogged should not return null.");
-      }
-      this.env = this.implem_env._newComponent(new BridgeImpl_env(), false);
-      
     }
     
     private void init_l() {
@@ -96,7 +95,6 @@ public abstract class EcoRobotLogged {
     }
     
     protected void initParts() {
-      init_env();
       init_l();
       init_b();
     }
@@ -135,17 +133,6 @@ public abstract class EcoRobotLogged {
       return this.elog;
     }
     
-    private Environment.Component env;
-    
-    private Environment implem_env;
-    
-    private final class BridgeImpl_env implements Environment.Requires {
-    }
-    
-    public final Environment.Component env() {
-      return this.env;
-    }
-    
     private Logging.Component l;
     
     private Logging implem_l;
@@ -164,6 +151,18 @@ public abstract class EcoRobotLogged {
     private final class BridgeImpl_b implements EcoRobot.Requires {
       public final ILog elog() {
         return EcoRobotLogged.ComponentImpl.this.elog();
+      }
+      
+      public final Environment envLocal() {
+        return EcoRobotLogged.ComponentImpl.this.bridge.env();
+      }
+      
+      public final IInteraction envLocalInteraction() {
+        return EcoRobotLogged.ComponentImpl.this.bridge.envLocalInteraction();
+      }
+      
+      public final IPerception envLocalPerception() {
+        return EcoRobotLogged.ComponentImpl.this.bridge.envLocalPerception();
       }
     }
     
@@ -461,13 +460,6 @@ public abstract class EcoRobotLogged {
    * This will be called once during the construction of the component to initialize this sub-component.
    * 
    */
-  protected abstract Environment make_env();
-  
-  /**
-   * This should be overridden by the implementation to define how to create this sub-component.
-   * This will be called once during the construction of the component to initialize this sub-component.
-   * 
-   */
   protected abstract Logging make_l();
   
   /**
@@ -529,13 +521,5 @@ public abstract class EcoRobotLogged {
   protected EcoRobotLogged.RobotLogged.Component newRobotLogged(final String name, final float maxEnergie, final Colors couleur, final Position positionInitiale) {
     EcoRobotLogged.RobotLogged _implem = _createImplementationOfRobotLogged(name,maxEnergie,couleur,positionInitiale);
     return _implem._newComponent(new EcoRobotLogged.RobotLogged.Requires() {},true);
-  }
-  
-  /**
-   * Use to instantiate a component from this implementation.
-   * 
-   */
-  public EcoRobotLogged.Component newComponent() {
-    return this._newComponent(new EcoRobotLogged.Requires() {}, true);
   }
 }

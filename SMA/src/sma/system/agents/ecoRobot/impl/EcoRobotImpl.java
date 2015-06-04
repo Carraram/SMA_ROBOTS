@@ -1,9 +1,11 @@
 package sma.system.agents.ecoRobot.impl;
 
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import sma.common.pojo.Colors;
+import sma.common.pojo.InvalidPositionException;
 import sma.common.pojo.Position;
 import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
 import sma.system.agents.ecoRobot.interfaces.IActuators;
@@ -13,11 +15,15 @@ import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
 import sma.system.agents.ecoRobot.interfaces.ISensors;
 import sma.system.agents.pojo.RobotState;
+import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.environment.services.interfaces.IPerception;
 import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.ecoRobot.Perception;
+import components.agent.ecoRobot.ReusableJoiningComp;
+import components.agent.ecoRobot.UniversalProvider;
+import components.agent.ecoRobot.ReusableJoiningComp.JoiningEntity;
 import components.environment.Environment;
 import components.environment.Nest;
 
@@ -107,10 +113,18 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
-								// Ajouter des informations au knowledge
-								Object infos = requires().sensors().getNests();
-								// obtenir la perception autour du robot
-								requires().knowledge().setInfos(infos);
+								try {
+									Position position = null;
+									int offset = 5;
+									Map<Colors, Position> nests = requires()
+											.envPerception().getNests();
+									Map<Position, Object> lookAround = requires()
+											.envPerception().lookAround(
+													position, offset);
+								} catch (InvalidPositionException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}
 							}
 						};
 					}
@@ -128,9 +142,10 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
-								Object infos = requires().knowledge()
-										.getInfos();
-								// Decider en fonction des informations
+								requires().perception().execute();
+								// décider et setter un enum d'action sur lequel
+								// action se basera ?
+								requires().action().execute();
 							}
 						};
 					}
@@ -148,16 +163,10 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
-								String[] action = provides().actionBuffer()
-										.pop();
-								// Exécuter l'action avec les Actuators
+								// Obtenir la décision dans une variable ...
+								// Action
 							}
 						};
-					}
-
-					@Override
-					protected IActionBuffer make_actionBuffer() {
-						return actionBuffer;
 					}
 
 				};
@@ -168,35 +177,43 @@ public class EcoRobotImpl extends EcoRobot {
 				return new IExecute() {
 					@Override
 					public void execute() {
-						parts().perception().perceive().execute();
+						// parts().perception().perceive().execute();
 						parts().decision().decide().execute();
-						parts().action().act().execute();
+						// parts().action().act().execute();
 					}
 				};
 			}
+		};
+	}
+
+	@Override
+	protected ReusableJoiningComp make_rjc() {
+		// TODO Auto-generated method stub
+		return new ReusableJoiningComp() {
 
 			@Override
-			protected IActuators make_actuators() {
+			protected JoiningEntity make_JoiningEntity() {
 				// TODO Auto-generated method stub
-				return null;
-			}
+				return new JoiningEntity() {
 
-			@Override 
-			protected IPerception make_sensors() {
-				// TODO Auto-generated method stub
-				return null;
-			}
+					@Override
+					protected IPerception make_joinEnvPerception() {
+						// TODO Auto-generated method stub
+						// TODO obtenir l'existant plutôt que de faire
+						// .newComponent() ?
+						return eco_requires().universalEnv().newComponent()
+								.perceptionService();
+					}
 
-			@Override
-			protected IKnowledge make_knowledge() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			protected Environment make_env() {
-				// TODO Auto-generated method stub
-				return null;
+					@Override
+					protected IInteraction make_joinEnvInteraction() {
+						// TODO Auto-generated method stub
+						// TODO obtenir l'existant plutôt que de faire
+						// .newComponent() ?
+						return eco_requires().universalEnv().newComponent()
+								.interactionService();
+					}
+				};
 			}
 		};
 	}

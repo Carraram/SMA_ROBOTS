@@ -45,11 +45,11 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 		return eLogger.log();
 	}
 
-	@Override
-	protected Environment make_env() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	protected Environment make_env() {
+//		// TODO Auto-generated method stub
+//		return null;
+//	}
 	
 //	@Override
 //	protected IBankManage make_manage() {

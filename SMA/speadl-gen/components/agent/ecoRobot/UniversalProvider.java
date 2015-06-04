@@ -1,19 +1,13 @@
 package components.agent.ecoRobot;
 
-import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.environment.services.interfaces.IInteraction;
+import components.environment.Environment;
 
 @SuppressWarnings("all")
-public abstract class Action {
+public abstract class UniversalProvider {
   public interface Requires {
-    /**
-     * This can be called by the implementation to access this required port.
-     * 
-     */
-    public IInteraction envInteraction();
   }
   
-  public interface Component extends Action.Provides {
+  public interface Component extends UniversalProvider.Provides {
   }
   
   public interface Provides {
@@ -21,16 +15,16 @@ public abstract class Action {
      * This can be called to access the provided port.
      * 
      */
-    public IExecute act();
+    public Environment env();
   }
   
   public interface Parts {
   }
   
-  public static class ComponentImpl implements Action.Component, Action.Parts {
-    private final Action.Requires bridge;
+  public static class ComponentImpl implements UniversalProvider.Component, UniversalProvider.Parts {
+    private final UniversalProvider.Requires bridge;
     
-    private final Action implementation;
+    private final UniversalProvider implementation;
     
     public void start() {
       this.implementation.start();
@@ -41,19 +35,19 @@ public abstract class Action {
       
     }
     
-    private void init_act() {
-      assert this.act == null: "This is a bug.";
-      this.act = this.implementation.make_act();
-      if (this.act == null) {
-      	throw new RuntimeException("make_act() in components.agent.ecoRobot.Action should not return null.");
+    private void init_env() {
+      assert this.env == null: "This is a bug.";
+      this.env = this.implementation.make_env();
+      if (this.env == null) {
+      	throw new RuntimeException("make_env() in components.agent.ecoRobot.UniversalProvider should not return null.");
       }
     }
     
     protected void initProvidedPorts() {
-      init_act();
+      init_env();
     }
     
-    public ComponentImpl(final Action implem, final Action.Requires b, final boolean doInits) {
+    public ComponentImpl(final UniversalProvider implem, final UniversalProvider.Requires b, final boolean doInits) {
       this.bridge = b;
       this.implementation = implem;
       
@@ -69,10 +63,10 @@ public abstract class Action {
       }
     }
     
-    private IExecute act;
+    private Environment env;
     
-    public IExecute act() {
-      return this.act;
+    public Environment env() {
+      return this.env;
     }
   }
   
@@ -90,7 +84,7 @@ public abstract class Action {
    */
   private boolean started = false;;
   
-  private Action.ComponentImpl selfComponent;
+  private UniversalProvider.ComponentImpl selfComponent;
   
   /**
    * Can be overridden by the implementation.
@@ -107,7 +101,7 @@ public abstract class Action {
    * This can be called by the implementation to access the provided ports.
    * 
    */
-  protected Action.Provides provides() {
+  protected UniversalProvider.Provides provides() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("provides() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if provides() is needed to initialise the component.");
@@ -120,13 +114,13 @@ public abstract class Action {
    * This will be called once during the construction of the component to initialize the port.
    * 
    */
-  protected abstract IExecute make_act();
+  protected abstract Environment make_env();
   
   /**
    * This can be called by the implementation to access the required ports.
    * 
    */
-  protected Action.Requires requires() {
+  protected UniversalProvider.Requires requires() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("requires() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if requires() is needed to initialise the component.");
@@ -138,7 +132,7 @@ public abstract class Action {
    * This can be called by the implementation to access the parts and their provided ports.
    * 
    */
-  protected Action.Parts parts() {
+  protected UniversalProvider.Parts parts() {
     assert this.selfComponent != null: "This is a bug.";
     if (!this.init) {
     	throw new RuntimeException("parts() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if parts() is needed to initialise the component.");
@@ -150,15 +144,23 @@ public abstract class Action {
    * Not meant to be used to manually instantiate components (except for testing).
    * 
    */
-  public synchronized Action.Component _newComponent(final Action.Requires b, final boolean start) {
+  public synchronized UniversalProvider.Component _newComponent(final UniversalProvider.Requires b, final boolean start) {
     if (this.init) {
-    	throw new RuntimeException("This instance of Action has already been used to create a component, use another one.");
+    	throw new RuntimeException("This instance of UniversalProvider has already been used to create a component, use another one.");
     }
     this.init = true;
-    Action.ComponentImpl  _comp = new Action.ComponentImpl(this, b, true);
+    UniversalProvider.ComponentImpl  _comp = new UniversalProvider.ComponentImpl(this, b, true);
     if (start) {
     	_comp.start();
     }
     return _comp;
+  }
+  
+  /**
+   * Use to instantiate a component from this implementation.
+   * 
+   */
+  public UniversalProvider.Component newComponent() {
+    return this._newComponent(new UniversalProvider.Requires() {}, true);
   }
 }

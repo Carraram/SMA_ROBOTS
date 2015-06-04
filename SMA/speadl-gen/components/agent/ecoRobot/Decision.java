@@ -1,8 +1,6 @@
 package components.agent.ecoRobot;
 
-import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 
 @SuppressWarnings("all")
 public abstract class Decision {
@@ -11,13 +9,13 @@ public abstract class Decision {
      * This can be called by the implementation to access this required port.
      * 
      */
-    public IActionBuffer actionBuffer();
+    public IExecute perception();
     
     /**
      * This can be called by the implementation to access this required port.
      * 
      */
-    public IKnowledge knowledge();
+    public IExecute action();
   }
   
   public interface Component extends Decision.Provides {

@@ -3,13 +3,11 @@ package components.agent.ecoRobot;
 import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
 import components.agent.ecoRobot.Perception;
+import components.agent.ecoRobot.ReusableJoiningComp;
 import components.environment.Environment;
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
-import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
-import sma.system.agents.ecoRobot.interfaces.IActuators;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
 import sma.system.agents.logging.interfaces.ILog;
@@ -19,6 +17,24 @@ import sma.system.environment.services.interfaces.IPerception;
 @SuppressWarnings("all")
 public abstract class EcoRobot {
   public interface Requires {
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public Environment envLocal();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IInteraction envLocalInteraction();
+    
+    /**
+     * This can be called by the implementation to access this required port.
+     * 
+     */
+    public IPerception envLocalPerception();
+    
     /**
      * This can be called by the implementation to access this required port.
      * 
@@ -33,6 +49,12 @@ public abstract class EcoRobot {
   }
   
   public interface Parts {
+    /**
+     * This can be called by the implementation to access the part and its provided ports.
+     * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+     * 
+     */
+    public ReusableJoiningComp.Component rjc();
   }
   
   public static class ComponentImpl implements EcoRobot.Component, EcoRobot.Parts {
@@ -41,12 +63,25 @@ public abstract class EcoRobot {
     private final EcoRobot implementation;
     
     public void start() {
+      assert this.rjc != null: "This is a bug.";
+      ((ReusableJoiningComp.ComponentImpl) this.rjc).start();
       this.implementation.start();
       this.implementation.started = true;
     }
     
-    protected void initParts() {
+    private void init_rjc() {
+      assert this.rjc == null: "This is a bug.";
+      assert this.implem_rjc == null: "This is a bug.";
+      this.implem_rjc = this.implementation.make_rjc();
+      if (this.implem_rjc == null) {
+      	throw new RuntimeException("make_rjc() in components.agent.ecoRobot.EcoRobot should not return null.");
+      }
+      this.rjc = this.implem_rjc._newComponent(new BridgeImpl_rjc(), false);
       
+    }
+    
+    protected void initParts() {
+      init_rjc();
     }
     
     protected void initProvidedPorts() {
@@ -67,6 +102,28 @@ public abstract class EcoRobot {
       	initParts();
       	initProvidedPorts();
       }
+    }
+    
+    private ReusableJoiningComp.Component rjc;
+    
+    private ReusableJoiningComp implem_rjc;
+    
+    private final class BridgeImpl_rjc implements ReusableJoiningComp.Requires {
+      public final Environment universalEnv() {
+        return EcoRobot.ComponentImpl.this.bridge.envLocal();
+      }
+      
+      public final IInteraction universalEnvInteraction() {
+        return EcoRobot.ComponentImpl.this.bridge.envLocalInteraction();
+      }
+      
+      public final IPerception universalEnvPerception() {
+        return EcoRobot.ComponentImpl.this.bridge.envLocalPerception();
+      }
+    }
+    
+    public final ReusableJoiningComp.Component rjc() {
+      return this.rjc;
     }
   }
   
@@ -99,28 +156,17 @@ public abstract class EcoRobot {
        * This can be called to access the provided port.
        * 
        */
-      public IActuators actuators();
-      
-      /**
-       * This can be called to access the provided port.
-       * 
-       */
-      public IPerception sensors();
-      
-      /**
-       * This can be called to access the provided port.
-       * 
-       */
-      public IKnowledge knowledge();
-      
-      /**
-       * This can be called to access the provided port.
-       * 
-       */
       public IExecute execute();
     }
     
     public interface Parts {
+      /**
+       * This can be called by the implementation to access the part and its provided ports.
+       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
+       * 
+       */
+      public ReusableJoiningComp.JoiningEntity.Component je();
+      
       /**
        * This can be called by the implementation to access the part and its provided ports.
        * It will be initialized after the required ports are initialized and before the provided ports are initialized.
@@ -141,13 +187,6 @@ public abstract class EcoRobot {
        * 
        */
       public Action.Component action();
-      
-      /**
-       * This can be called by the implementation to access the part and its provided ports.
-       * It will be initialized after the required ports are initialized and before the provided ports are initialized.
-       * 
-       */
-      public Environment.Component env();
     }
     
     public static class ComponentImpl implements EcoRobot.Robot.Component, EcoRobot.Robot.Parts {
@@ -156,16 +195,23 @@ public abstract class EcoRobot {
       private final EcoRobot.Robot implementation;
       
       public void start() {
+        assert this.je != null: "This is a bug.";
+        ((ReusableJoiningComp.JoiningEntity.ComponentImpl) this.je).start();
         assert this.perception != null: "This is a bug.";
         ((Perception.ComponentImpl) this.perception).start();
         assert this.decision != null: "This is a bug.";
         ((Decision.ComponentImpl) this.decision).start();
         assert this.action != null: "This is a bug.";
         ((Action.ComponentImpl) this.action).start();
-        assert this.env != null: "This is a bug.";
-        ((Environment.ComponentImpl) this.env).start();
         this.implementation.start();
         this.implementation.started = true;
+      }
+      
+      private void init_je() {
+        assert this.je == null: "This is a bug.";
+        assert this.implementation.use_je != null: "This is a bug.";
+        this.je = this.implementation.use_je._newComponent(new BridgeImpl_rjc_je(), false);
+        
       }
       
       private void init_perception() {
@@ -201,22 +247,11 @@ public abstract class EcoRobot {
         
       }
       
-      private void init_env() {
-        assert this.env == null: "This is a bug.";
-        assert this.implem_env == null: "This is a bug.";
-        this.implem_env = this.implementation.make_env();
-        if (this.implem_env == null) {
-        	throw new RuntimeException("make_env() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
-        }
-        this.env = this.implem_env._newComponent(new BridgeImpl_env(), false);
-        
-      }
-      
       protected void initParts() {
+        init_je();
         init_perception();
         init_decision();
         init_action();
-        init_env();
       }
       
       private void init_operations() {
@@ -235,30 +270,6 @@ public abstract class EcoRobot {
         }
       }
       
-      private void init_actuators() {
-        assert this.actuators == null: "This is a bug.";
-        this.actuators = this.implementation.make_actuators();
-        if (this.actuators == null) {
-        	throw new RuntimeException("make_actuators() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
-        }
-      }
-      
-      private void init_sensors() {
-        assert this.sensors == null: "This is a bug.";
-        this.sensors = this.implementation.make_sensors();
-        if (this.sensors == null) {
-        	throw new RuntimeException("make_sensors() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
-        }
-      }
-      
-      private void init_knowledge() {
-        assert this.knowledge == null: "This is a bug.";
-        this.knowledge = this.implementation.make_knowledge();
-        if (this.knowledge == null) {
-        	throw new RuntimeException("make_knowledge() in components.agent.ecoRobot.EcoRobot$Robot should not return null.");
-        }
-      }
-      
       private void init_execute() {
         assert this.execute == null: "This is a bug.";
         this.execute = this.implementation.make_execute();
@@ -270,9 +281,6 @@ public abstract class EcoRobot {
       protected void initProvidedPorts() {
         init_operations();
         init_status();
-        init_actuators();
-        init_sensors();
-        init_knowledge();
         init_execute();
       }
       
@@ -304,28 +312,19 @@ public abstract class EcoRobot {
         return this.status;
       }
       
-      private IActuators actuators;
-      
-      public IActuators actuators() {
-        return this.actuators;
-      }
-      
-      private IPerception sensors;
-      
-      public IPerception sensors() {
-        return this.sensors;
-      }
-      
-      private IKnowledge knowledge;
-      
-      public IKnowledge knowledge() {
-        return this.knowledge;
-      }
-      
       private IExecute execute;
       
       public IExecute execute() {
         return this.execute;
+      }
+      
+      private ReusableJoiningComp.JoiningEntity.Component je;
+      
+      private final class BridgeImpl_rjc_je implements ReusableJoiningComp.JoiningEntity.Requires {
+      }
+      
+      public final ReusableJoiningComp.JoiningEntity.Component je() {
+        return this.je;
       }
       
       private Perception.Component perception;
@@ -333,12 +332,8 @@ public abstract class EcoRobot {
       private Perception implem_perception;
       
       private final class BridgeImpl_perception implements Perception.Requires {
-        public final IPerception sensors() {
-          return EcoRobot.Robot.ComponentImpl.this.sensors();
-        }
-        
-        public final IKnowledge knowledge() {
-          return EcoRobot.Robot.ComponentImpl.this.knowledge();
+        public final IPerception envPerception() {
+          return EcoRobot.Robot.ComponentImpl.this.je().joinEnvPerception();
         }
       }
       
@@ -351,12 +346,12 @@ public abstract class EcoRobot {
       private Decision implem_decision;
       
       private final class BridgeImpl_decision implements Decision.Requires {
-        public final IKnowledge knowledge() {
-          return EcoRobot.Robot.ComponentImpl.this.knowledge();
+        public final IExecute action() {
+          return EcoRobot.Robot.ComponentImpl.this.action().act();
         }
         
-        public final IActionBuffer actionBuffer() {
-          return EcoRobot.Robot.ComponentImpl.this.action().actionBuffer();
+        public final IExecute perception() {
+          return EcoRobot.Robot.ComponentImpl.this.perception().perceive();
         }
       }
       
@@ -369,28 +364,13 @@ public abstract class EcoRobot {
       private Action implem_action;
       
       private final class BridgeImpl_action implements Action.Requires {
-        public final IActuators actuators() {
-          return EcoRobot.Robot.ComponentImpl.this.actuators();
-        }
-        
         public final IInteraction envInteraction() {
-          return EcoRobot.Robot.ComponentImpl.this.env().interactionService();
+          return EcoRobot.Robot.ComponentImpl.this.je().joinEnvInteraction();
         }
       }
       
       public final Action.Component action() {
         return this.action;
-      }
-      
-      private Environment.Component env;
-      
-      private Environment implem_env;
-      
-      private final class BridgeImpl_env implements Environment.Requires {
-      }
-      
-      public final Environment.Component env() {
-        return this.env;
       }
     }
     
@@ -452,27 +432,6 @@ public abstract class EcoRobot {
      * This will be called once during the construction of the component to initialize the port.
      * 
      */
-    protected abstract IActuators make_actuators();
-    
-    /**
-     * This should be overridden by the implementation to define the provided port.
-     * This will be called once during the construction of the component to initialize the port.
-     * 
-     */
-    protected abstract IPerception make_sensors();
-    
-    /**
-     * This should be overridden by the implementation to define the provided port.
-     * This will be called once during the construction of the component to initialize the port.
-     * 
-     */
-    protected abstract IKnowledge make_knowledge();
-    
-    /**
-     * This should be overridden by the implementation to define the provided port.
-     * This will be called once during the construction of the component to initialize the port.
-     * 
-     */
     protected abstract IExecute make_execute();
     
     /**
@@ -499,6 +458,8 @@ public abstract class EcoRobot {
       return this.selfComponent;
     }
     
+    private ReusableJoiningComp.JoiningEntity use_je;
+    
     /**
      * This should be overridden by the implementation to define how to create this sub-component.
      * This will be called once during the construction of the component to initialize this sub-component.
@@ -519,13 +480,6 @@ public abstract class EcoRobot {
      * 
      */
     protected abstract Action make_action();
-    
-    /**
-     * This should be overridden by the implementation to define how to create this sub-component.
-     * This will be called once during the construction of the component to initialize this sub-component.
-     * 
-     */
-    protected abstract Environment make_env();
     
     /**
      * Not meant to be used to manually instantiate components (except for testing).
@@ -637,6 +591,13 @@ public abstract class EcoRobot {
   }
   
   /**
+   * This should be overridden by the implementation to define how to create this sub-component.
+   * This will be called once during the construction of the component to initialize this sub-component.
+   * 
+   */
+  protected abstract ReusableJoiningComp make_rjc();
+  
+  /**
    * Not meant to be used to manually instantiate components (except for testing).
    * 
    */
@@ -670,6 +631,9 @@ public abstract class EcoRobot {
     assert implem.ecosystemComponent == null: "This is a bug.";
     assert this.selfComponent != null: "This is a bug.";
     implem.ecosystemComponent = this.selfComponent;
+    assert this.selfComponent.implem_rjc != null: "This is a bug.";
+    assert implem.use_je == null: "This is a bug.";
+    implem.use_je = this.selfComponent.implem_rjc._createImplementationOfJoiningEntity();
     return implem;
   }
 }
