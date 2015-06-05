@@ -1,6 +1,7 @@
 import components.environment.Environment
 import components.control.UserAccess
 import sma.system.control.services.interfaces.IUserOperations
+import components.agent.ecoRobotLogged.EcoRobotLogged
 
 namespace components.system {
 	component SMASystem {
@@ -8,7 +9,12 @@ namespace components.system {
 			= manager.userService
 		
 		part environment : Environment
+		part agents : EcoRobotLogged{
+			bind envLocalInteraction to environment.interactionService
+			bind envLocalPerception to environment.perceptionService
+		}
 		part manager : UserAccess {
+			bind agentManagementService to agents.agentManagementService
 			bind envManagementService to environment.managementService
 		}
 	}

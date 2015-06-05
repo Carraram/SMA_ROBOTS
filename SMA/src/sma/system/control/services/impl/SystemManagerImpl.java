@@ -49,6 +49,12 @@ public class SystemManagerImpl extends SystemManager {
                 // TODO Auto-generated method stub
                 requires().environmentManagementService().stopEnvironmentExecution();
             }
+
+			@Override
+			public void createRobot() {
+				// TODO Auto-generated method stub
+				requires().agentManagementService().createRobot();
+			}
         };
     }
 

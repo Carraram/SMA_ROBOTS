@@ -25,6 +25,8 @@ import sma.system.agents.ecoRobot.interfaces.IActuators
 
 import components.environment.Environment
 
+import sma.system.agents.ecoRobotLogged.impl.EcoRobotLoggedImpl
+
 namespace components.agent.ecoRobot {
 
 	component Perception {
@@ -48,12 +50,10 @@ namespace components.agent.ecoRobot {
 	}
 
 	ecosystem ReusableJoiningComp {
-		requires universalEnv: Environment
-				requires universalEnvInteraction: IInteraction
-				requires universalEnvPerception: IPerception
-		
+		requires universalEnvInteraction: IInteraction
+		requires universalEnvPerception: IPerception
+
 		species JoiningEntity {
-//			provides joinEnv: Environment
 			provides joinEnvInteraction: IInteraction
 			provides joinEnvPerception: IPerception
 		}
@@ -61,13 +61,12 @@ namespace components.agent.ecoRobot {
 
 	ecosystem EcoRobot {
 
-		requires envLocal: Environment
 		requires envLocalInteraction: IInteraction
 		requires envLocalPerception: IPerception
 
 		//		part envProvider: UniversalProvider
 		part rjc: ReusableJoiningComp {
-			bind universalEnv to envLocal
+		//			bind universalEnv to envLocal
 			bind universalEnvInteraction to envLocalInteraction
 			bind universalEnvPerception to envLocalPerception
 

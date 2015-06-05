@@ -1,6 +1,4 @@
 
-import sma.system.agents.ecoRobotLogged.interfaces.IBankManage
-
 import sma.system.agents.logging.interfaces.ILog
 
 import components.agent.ecoRobot.EcoRobot
@@ -17,50 +15,31 @@ import sma.system.environment.services.interfaces.IInteraction
 
 import sma.system.environment.services.interfaces.IPerception
 
+import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement
+
+import sma.system.agents.ecoRobot.interfaces.IExecute
+
 namespace components.agent.ecoRobotLogged {
-
 	ecosystem EcoRobotLogged {
-	//		part env: components.environment.Environment
-		requires env: Environment
-
-		//		provides manage: IBankManage
+		provides agentManagementService: IAgentManagement
 		provides elog: ILog
 		requires envLocalInteraction: IInteraction
 		requires envLocalPerception: IPerception
 		part l: Logging
-
 		part b: EcoRobot {
 			bind elog to elog
-			bind envLocal to env
 			bind envLocalInteraction to envLocalInteraction
 			bind envLocalPerception to envLocalPerception
 		}
 
-		//		part gui: BankGUI {
-		//			bind manage to manage
-		//		}
 		species RobotLogged(name: String, maxEnergie: float, couleur: Colors,
 		positionInitiale: Position) {
-
 			use ll: l.Logger(name)
 			use ba: b.Robot(maxEnergie, couleur, positionInitiale) {
 				bind log to ll.log
-				//				bind env to env
-
-				//				bind actuators to actuators
-				//				bind sensors to sensors
-				//				bind knowledge to knowledge
-
 			}
 
-			//			provides actuators: IActuators
-			//			provides sensors: ISensors
-			//			provides knowledge: IKnowledge
-
-			//			use ga: gui.AccountGUI {
-			//				bind operations to ba.operations
-			//				bind status to ba.status
-			//			}
+			provides execute: IExecute = ba.execute
 
 		}
 	}

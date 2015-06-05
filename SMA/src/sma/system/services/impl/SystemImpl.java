@@ -1,7 +1,11 @@
 package sma.system.services.impl;
 
+import java.io.File;
+
+import sma.system.agents.ecoRobotLogged.impl.EcoRobotLoggedImpl;
 import sma.system.control.services.impl.UserAccessImpl;
 import sma.system.environment.services.impl.EnvironmentImpl;
+import components.agent.ecoRobotLogged.EcoRobotLogged;
 import components.control.UserAccess;
 import components.environment.Environment;
 import components.system.SMASystem;
@@ -21,5 +25,11 @@ public class SystemImpl extends SMASystem {
         // TODO Auto-generated method stub
         return new UserAccessImpl();
     }
+
+	@Override
+	protected EcoRobotLogged make_agents() {
+		// TODO Auto-generated method stub
+		return new EcoRobotLoggedImpl(new File(System.getProperty("java.io.tmpdir")));
+	}
 
 }

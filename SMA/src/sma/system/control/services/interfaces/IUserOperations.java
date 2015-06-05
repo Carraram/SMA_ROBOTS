@@ -23,4 +23,9 @@ public interface IUserOperations {
      * Arrête le système
      */
     void stopSystem();
+    
+    /**
+     * Créer un robot
+     */
+    void createRobot();
 }

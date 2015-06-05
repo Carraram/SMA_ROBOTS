@@ -17,6 +17,7 @@ public class LoggingImplDirectory extends Logging {
 	public LoggingImplDirectory(File logDir) {
 		this.logDir = logDir;
 		this.logDir.mkdirs();
+		System.out.println(this.logDir);
 	}
 	
 	@Override
