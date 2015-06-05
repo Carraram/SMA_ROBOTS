@@ -14,6 +14,7 @@ import sma.system.agents.ecoRobot.interfaces.IExecute;
 import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
+import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement;
 import sma.system.agents.pojo.RobotState;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.agents.pojo.interfaces.IAgentOperations;
@@ -32,7 +33,14 @@ public class EcoRobotImpl extends EcoRobot {
 	@Override
 	protected Robot make_Robot(final float maxEnergy, final Colors robotColor,
 			final Position initPosition) {
+
+		System.out.println("Robot created");
 		return new Robot() {
+
+			private float _maxEnergy = maxEnergy;
+			private Colors _robotColor = robotColor;
+			private Position _initPosition = initPosition;
+			private int _offset = 5;
 
 			private IActionBuffer actionBuffer = new IActionBuffer() {
 				private LinkedList<String[]> actionBuffer = new LinkedList<String[]>();
@@ -114,13 +122,12 @@ public class EcoRobotImpl extends EcoRobot {
 							@Override
 							public void execute() {
 								try {
-									Position position = null;
-									int offset = 5;
 									Map<Colors, Position> nests = requires()
 											.envPerception().getNests();
 									Map<Position, Object> lookAround = requires()
 											.envPerception().lookAround(
-													position, offset);
+													_initPosition, _offset);
+									System.out.println(lookAround);
 								} catch (ServiceUnavailableException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -180,6 +187,7 @@ public class EcoRobotImpl extends EcoRobot {
 				return new IExecute() {
 					@Override
 					public void execute() {
+						System.out.println("Exécution du robot");
 						// parts().perception().perceive().execute();
 						parts().decision().decide().execute();
 						// parts().action().act().execute();
@@ -202,22 +210,17 @@ public class EcoRobotImpl extends EcoRobot {
 					@Override
 					protected IPerception make_joinEnvPerception() {
 						// TODO Auto-generated method stub
-						// TODO obtenir l'existant plutôt que de faire
-						// .newComponent() ?
-						return eco_requires().universalEnv().newComponent()
-								.perceptionService();
+						return eco_requires().universalEnvPerception();
 					}
 
 					@Override
 					protected IInteraction make_joinEnvInteraction() {
 						// TODO Auto-generated method stub
-						// TODO obtenir l'existant plutôt que de faire
-						// .newComponent() ?
-						return eco_requires().universalEnv().newComponent()
-								.interactionService();
+						return eco_requires().universalEnvInteraction();
 					}
 				};
 			}
 		};
 	}
+
 }

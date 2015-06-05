@@ -1,6 +1,7 @@
 import sma.common.services.interfaces.IPersistence
 import sma.system.control.services.interfaces.IUserOperations
 import sma.system.environment.services.interfaces.IEnvManagement
+import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement
 
 namespace components.control {
 	component Persistence {
@@ -10,6 +11,7 @@ namespace components.control {
 	component SystemManager {
 		provides userService : IUserOperations
 		requires persistenceService : IPersistence
+		requires agentManagementService : IAgentManagement	
 		requires environmentManagementService : IEnvManagement
 	}
 	
@@ -17,10 +19,12 @@ namespace components.control {
 		provides userService : IUserOperations
 			= systemManager.userService
 			
+		requires agentManagementService : IAgentManagement			
 		requires envManagementService : IEnvManagement
-		
+
 		part persistence : Persistence
 		part systemManager : SystemManager {
+			bind agentManagementService to agentManagementService
 			bind persistenceService to persistence.persistenceService
 			bind environmentManagementService to envManagementService
 		}

@@ -1,18 +1,11 @@
 package components.agent.ecoRobot;
 
-import components.environment.Environment;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.environment.services.interfaces.IPerception;
 
 @SuppressWarnings("all")
 public abstract class ReusableJoiningComp {
   public interface Requires {
-    /**
-     * This can be called by the implementation to access this required port.
-     * 
-     */
-    public Environment universalEnv();
-    
     /**
      * This can be called by the implementation to access this required port.
      * 
