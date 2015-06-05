@@ -1,16 +1,30 @@
 import sma.common.services.interfaces.IPersistence
 import sma.system.control.services.interfaces.IUserOperations
 import sma.system.environment.services.interfaces.IEnvManagement
+import sma.system.control.services.interfaces.IAgentManagement
 
 namespace components.control {
 	component Persistence {
 		provides persistenceService : IPersistence
 	}
 	
+	component Visualisation{
+		provides userServiceDisplay : IUserOperations
+		requires envDisplayService : IEnvManagement
+		requires agentDisplayService : IAgentManagement
+	}
+	
 	component SystemManager {
 		provides userService : IUserOperations
 		requires persistenceService : IPersistence
 		requires environmentManagementService : IEnvManagement
+		requires agentSysManagementService : IAgentManagement
+		
+		part display : Visualisation{
+			
+			bind agentDisplayService to agentSysManagementService
+			bind envDisplayService to environmentManagementService
+		}
 	}
 	
 	component UserAccess {
@@ -18,11 +32,13 @@ namespace components.control {
 			= systemManager.userService
 			
 		requires envManagementService : IEnvManagement
+		requires agentSysManagementService : IAgentManagement
 		
 		part persistence : Persistence
 		part systemManager : SystemManager {
 			bind persistenceService to persistence.persistenceService
 			bind environmentManagementService to envManagementService
+			bind agentSysManagementService to agentSysManagementService
 		}
 	}
 }
