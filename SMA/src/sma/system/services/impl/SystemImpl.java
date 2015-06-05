@@ -15,18 +15,15 @@ import components.system.SMASystem;
  */
 public class SystemImpl extends SMASystem {
 
-    @Override
     protected Environment make_environment() {
         return new EnvironmentImpl();
     }
 
-    @Override
     protected UserAccess make_manager() {
         // TODO Auto-generated method stub
         return new UserAccessImpl();
     }
 
-	@Override
 	protected EcoRobotLogged make_agents() {
 		// TODO Auto-generated method stub
 		return new EcoRobotLoggedImpl(new File(System.getProperty("java.io.tmpdir")));

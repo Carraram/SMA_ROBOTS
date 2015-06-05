@@ -12,7 +12,6 @@ public class RunSystem {
         SMASystem.Component system = (new SystemImpl()).newComponent();
         System.out.println("Client : Lancement du système");
         system.userService().startSystem();
-        system.userService().createRobot();
         try {
             Thread.sleep(10*1000);
         } catch (InterruptedException e) {
