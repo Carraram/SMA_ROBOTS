@@ -8,6 +8,4 @@ import sma.system.environment.pojo.ColorBox;
 public class Cell extends JLabel {
 	public Cell(){
 	}
-	
-	
 }
