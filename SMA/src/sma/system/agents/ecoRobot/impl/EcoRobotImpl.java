@@ -31,7 +31,8 @@ public class EcoRobotImpl extends EcoRobot {
 	@Override
 	protected Robot make_Robot(final float maxEnergy, final Colors robotColor, final Position initPosition) {
 
-		System.out.println("Robot created");
+		requires().elog().addLine("Création d'un nouveau robot : " + maxEnergy + " " + robotColor + " " + initPosition);
+
 		return new Robot() {
 
 			private final IAgentOperations robotState = new RobotState(maxEnergy, robotColor, initPosition);
@@ -40,8 +41,11 @@ public class EcoRobotImpl extends EcoRobot {
 			private Map<Position, Object> lookAroundOne;
 			private ActionDecided actionDecided;
 			private Position targetPosition;
-
 			private int offset = 5;
+
+			public void addLogLine(String line) {
+				requires().log().addLine(line);
+			}
 
 			@Override
 			protected IRobotStatus make_status() {
@@ -68,7 +72,7 @@ public class EcoRobotImpl extends EcoRobot {
 									nests = requires().envPerception().getNests();
 									lookAround = requires().envPerception().lookAround(robotState.getCurrentPosition(), offset);
 									lookAroundOne = requires().envPerception().lookAround(robotState.getCurrentPosition(), 1);
-									System.out.println("LookAround : " + lookAround);
+									addLogLine("Perception : " + lookAround);
 								} catch (ServiceUnavailableException e) {
 									e.printStackTrace();
 								} catch (sma.common.pojo.exceptions.InvalidPositionException e) {
@@ -160,8 +164,6 @@ public class EcoRobotImpl extends EcoRobot {
 					yDirection = 0;
 				}
 
-				System.out.println("Calculated position : " + new Position(xDirection, yDirection));
-
 				return new Position(currentPosition.getCoordX() + xDirection, currentPosition.getCoordY() + yDirection);
 			}
 
@@ -176,8 +178,6 @@ public class EcoRobotImpl extends EcoRobot {
 							@Override
 							public void execute() {
 								requires().perception().execute();
-
-								System.out.println("Niveau d'énergie : " + robotState.getCurrentEnergyLevel());
 
 								// si on a une boite
 								if (robotState.getColorBox() != null) {
@@ -227,6 +227,7 @@ public class EcoRobotImpl extends EcoRobot {
 											targetPosition = random;
 										}
 
+										addLogLine("Decision : " + actionDecided);
 									}
 								}
 
@@ -253,6 +254,7 @@ public class EcoRobotImpl extends EcoRobot {
 									try {
 										robotState.setColorBox(requires().envInteraction().takeColorBox(targetPosition));
 										robotState.decreaseEnergy();
+										addLogLine("TAKE : Prendre la boite");
 									} catch (EmptyGridBoxException | NotABoxException | ServiceUnavailableException e) {
 										e.printStackTrace();
 									}
@@ -262,9 +264,9 @@ public class EcoRobotImpl extends EcoRobot {
 									try {
 										energyReceived = requires().envInteraction().dropColorBox(robotState);
 										robotState.increaseEnergy(energyReceived);
-										System.out.println("==> INCREASING ENERGY : " + robotState.getCurrentEnergyLevel());
 										robotState.setColorBox(null);
 										robotState.decreaseEnergy();
+										addLogLine("DROP : Poser la boite");
 									} catch (ServiceUnavailableException e) {
 										e.printStackTrace();
 									}
@@ -272,17 +274,19 @@ public class EcoRobotImpl extends EcoRobot {
 									break;
 								case MOVE:
 									try {
-										System.out.println("Moving from " + robotState.getCurrentPosition() + " to : " + targetPosition);
 										targetPosition = getDirection(robotState.getCurrentPosition(), targetPosition);
 										requires().envInteraction().move(robotState.getCurrentPosition(), targetPosition);
 										robotState.updatePosition(targetPosition);
 										robotState.decreaseEnergy();
+										addLogLine("MOVE : Se déplacer vers " + targetPosition);
 									} catch (NonEmptyGridBoxException | sma.common.pojo.exceptions.InvalidPositionException
 											| ServiceUnavailableException e) {
 										e.printStackTrace();
 									}
 									break;
 								}
+
+								addLogLine("Action, robot state : " + robotState.getCurrentEnergyLevel());
 							}
 						};
 					}
@@ -296,7 +300,6 @@ public class EcoRobotImpl extends EcoRobot {
 					@Override
 					public void execute() {
 						while (robotState.getCurrentEnergyLevel() != 0) {
-							System.out.println("Exécution du robot");
 							parts().decision().decide().execute();
 							try {
 								Thread.sleep(1000);

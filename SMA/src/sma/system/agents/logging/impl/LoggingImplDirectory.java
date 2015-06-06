@@ -17,14 +17,14 @@ public class LoggingImplDirectory extends Logging {
 	public LoggingImplDirectory(File logDir) {
 		this.logDir = logDir;
 		this.logDir.mkdirs();
-		System.out.println(this.logDir);
+		System.out.println("Dossier de logs : " + this.logDir);
 	}
-	
+
 	@Override
 	protected Logger make_Logger(String name) {
-		return new LoggerImpl(new File(logDir, name+".txt"));
+		return new LoggerImpl(new File(logDir, name + ".txt"));
 	}
-	
+
 	@Override
 	protected ICreateLogger make_create() {
 		return new ICreateLogger() {
@@ -34,11 +34,11 @@ public class LoggingImplDirectory extends Logging {
 			}
 		};
 	}
-	
+
 	private class LoggerImpl extends Logger implements ILog {
 
 		private PrintWriter logWriter;
-		
+
 		public LoggerImpl(File logFile) {
 			try {
 				this.logWriter = new PrintWriter(new FileWriter(logFile), true);
@@ -50,7 +50,7 @@ public class LoggingImplDirectory extends Logging {
 				this.logWriter = null;
 			}
 		}
-		
+
 		@Override
 		protected ILog make_log() {
 			return this;

@@ -60,11 +60,12 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 
 			@Override
 			public void createRobot() {
-				listRobots.add(newRobotLogged("Test1", 40f, Colors.BLUE, new Position(1, 1)));
-				listRobots.add(newRobotLogged("Test2", 30f, Colors.RED, new Position(1, 2)));
+				listRobots.add(newRobotLogged("Robot1", 40f, Colors.BLUE, new Position(1, 1)));
+				listRobots.add(newRobotLogged("Robot2", 30f, Colors.RED, new Position(1, 2)));
+				listRobots.add(newRobotLogged("Robot3", 30f, Colors.GREEN, new Position(1, 3)));
+				listRobots.add(newRobotLogged("Robot4", 30f, Colors.BLUE, new Position(1, 4)));
 
 				for (final RobotLogged.Component robot : listRobots) {
-					System.out.println(robot.status().getRobotState());
 					executor.execute(new Runnable() {
 						@Override
 						public void run() {

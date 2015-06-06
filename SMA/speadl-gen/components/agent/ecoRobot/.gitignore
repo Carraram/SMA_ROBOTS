@@ -4,3 +4,7 @@
 /.Action.java._trace
 /.Decision.java._trace
 /UniversalProvider.java
+/Action.java
+/Decision.java
+/Perception.java
+/ReusableJoiningComp.java

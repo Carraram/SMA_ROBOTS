@@ -61,7 +61,6 @@ public class VisualisationImpl extends Visualisation {
 				
 				  ActionListener taskPerformer = new ActionListener() {
 				      public void actionPerformed(ActionEvent evt) {
-				    	  System.out.println("timer");
 				    	  window.reinitial();
 				    	  window.setRobots(requires().agentDisplayService().getRobotsStatuses());
 						  window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
@@ -74,10 +73,9 @@ public class VisualisationImpl extends Visualisation {
 				window.addWindowListener(new WindowAdapter() {
 			        @Override
 			        public void windowClosing(WindowEvent event) {
-			        	System.out.println("stop System");
+			        	System.out.println("Arrêt système");
 //			        	stopSystem();
 			        	timer.stop();
-			        	System.out.println("exit");
 			        	window.dispose();
 			            System.exit(0);
 			        }
