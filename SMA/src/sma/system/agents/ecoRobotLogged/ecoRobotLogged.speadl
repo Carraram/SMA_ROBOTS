@@ -18,6 +18,7 @@ import sma.system.environment.services.interfaces.IPerception
 import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement
 
 import sma.system.agents.ecoRobot.interfaces.IExecute
+import sma.system.agents.ecoRobot.interfaces.IRobotStatus
 
 namespace components.agent.ecoRobotLogged {
 	ecosystem EcoRobotLogged {
@@ -40,7 +41,7 @@ namespace components.agent.ecoRobotLogged {
 			}
 
 			provides execute: IExecute = ba.execute
-
+			provides status: IRobotStatus = ba.status
 		}
 	}
 }

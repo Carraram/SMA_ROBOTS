@@ -15,14 +15,6 @@ import sma.system.environment.services.interfaces.IPerception
 
 import sma.system.agents.ecoRobot.interfaces.IExecute
 
-import sma.system.agents.ecoRobot.interfaces.ISensors
-
-import sma.system.agents.ecoRobot.interfaces.IKnowledge
-
-import sma.system.agents.ecoRobot.interfaces.IActionBuffer
-
-import sma.system.agents.ecoRobot.interfaces.IActuators
-
 import components.environment.Environment
 
 import sma.system.agents.ecoRobotLogged.impl.EcoRobotLoggedImpl
@@ -79,7 +71,7 @@ namespace components.agent.ecoRobot {
 
 			use je: rjc.JoiningEntity
 
-			provides operations: IRobotOperations
+//			provides operations: IRobotOperations
 			provides status: IRobotStatus
 
 			requires log: ILog

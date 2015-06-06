@@ -1,5 +1,6 @@
 package sma.system.agents.ecoRobot.impl;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -7,15 +8,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 import sma.common.pojo.Colors;
 import sma.common.pojo.InvalidPositionException;
 import sma.common.pojo.Position;
+import sma.common.pojo.exceptions.EmptyGridBoxException;
+import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 import sma.common.pojo.exceptions.ServiceUnavailableException;
-import sma.system.agents.ecoRobot.interfaces.IActionBuffer;
-import sma.system.agents.ecoRobot.interfaces.IActuators;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.agents.ecoRobot.interfaces.IKnowledge;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
 import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement;
+import sma.system.agents.pojo.ActionDecided;
 import sma.system.agents.pojo.RobotState;
+import sma.system.environment.pojo.ColorBox;
+import sma.system.environment.pojo.exceptions.NotABoxException;
 import sma.system.environment.services.interfaces.IInteraction;
 import sma.system.agents.pojo.interfaces.IAgentOperations;
 import sma.system.environment.services.interfaces.IPerception;
@@ -31,78 +34,23 @@ import components.environment.Environment;
 public class EcoRobotImpl extends EcoRobot {
 
 	@Override
-	protected Robot make_Robot(final float maxEnergy, final Colors robotColor,
-			final Position initPosition) {
+	protected Robot make_Robot(final float maxEnergy, final Colors robotColor, final Position initPosition) {
 
 		System.out.println("Robot created");
 		return new Robot() {
 
-			private float _maxEnergy = maxEnergy;
-			private Colors _robotColor = robotColor;
-			private Position _initPosition = initPosition;
-			private int _offset = 5;
+			private final IAgentOperations robotState = new RobotState(maxEnergy, robotColor, initPosition);
+			private Map<Colors, Position> nests;
+			private Map<Position, Object> lookAround;
+			private Map<Position, Object> lookAroundOne;
+			private ActionDecided actionDecided;
+			private Position targetPosition;
 
-			private IActionBuffer actionBuffer = new IActionBuffer() {
-				private LinkedList<String[]> actionBuffer = new LinkedList<String[]>();
-
-				@Override
-				public void push(String[] element) {
-					this.actionBuffer.push(element);
-				}
-
-				@Override
-				public String[] pop() {
-					return this.actionBuffer.removeFirst();
-				}
-
-			};
-
-			private final IAgentOperations robotState = new RobotState(
-					maxEnergy, robotColor, initPosition);
-
-			private final AtomicInteger balance = new AtomicInteger();
-
-			@Override
-			protected void start() {
-				eco_requires().elog().addLine(
-						"Added a new Robot with :" + maxEnergy + ","
-								+ robotColor + "," + initPosition + ",");
-			}
-
-			@Override
-			protected IRobotOperations make_operations() {
-				return new IRobotOperations() {
-
-					@Override
-					public void withdraw(int value) {
-						provides().operations().deposit(-value);
-						requires().log().addLine(
-								value + " were withdrawn, current balance: "
-										+ provides().status().getBalance());
-					}
-
-					@Override
-					public void deposit(int value) {
-						balance.addAndGet(value);
-						requires().log().addLine(
-								value + " were deposited, current balance: "
-										+ provides().status().getBalance());
-					}
-				};
-			}
+			private int offset = 5;
 
 			@Override
 			protected IRobotStatus make_status() {
 				return new IRobotStatus() {
-					@Override
-					public int getBalance() {
-						return balance.get();
-					}
-
-					@Override
-					public String getOwner() {
-						return null;
-					}
 
 					@Override
 					public IAgentOperations getRobotState() {
@@ -122,12 +70,10 @@ public class EcoRobotImpl extends EcoRobot {
 							@Override
 							public void execute() {
 								try {
-									Map<Colors, Position> nests = requires()
-											.envPerception().getNests();
-									Map<Position, Object> lookAround = requires()
-											.envPerception().lookAround(
-													_initPosition, _offset);
-									System.out.println(lookAround);
+									nests = requires().envPerception().getNests();
+									lookAround = requires().envPerception().lookAround(robotState.getCurrentPosition(), offset);
+									lookAroundOne = requires().envPerception().lookAround(robotState.getCurrentPosition(), 1);
+									System.out.println("LookAround : " + lookAround);
 								} catch (ServiceUnavailableException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
@@ -142,6 +88,65 @@ public class EcoRobotImpl extends EcoRobot {
 				};
 			}
 
+			public <T> Position getOneKey(Map<Position, Object> map, Class<T> clazz) {
+				for (Map.Entry<Position, Object> o : map.entrySet()) {
+					if (o != null && o.getValue().getClass() == clazz) {
+						return o.getKey();
+					}
+				}
+				return null;
+			}
+
+			public <T> Position getOneKey(Map<Position, Object> map, Class<T> clazz, String color) {
+				for (Map.Entry<Position, Object> o : map.entrySet()) {
+					if (o != null && o.getValue().getClass() == clazz && o.getValue().toString() == color) {
+						return o.getKey();
+					}
+				}
+				return null;
+			}
+
+			public <T> T getOneValue(Map<Position, Object> map, Class<T> clazz) {
+				for (Map.Entry<Position, Object> o : map.entrySet()) {
+					if (o != null && o.getValue().getClass() == clazz) {
+						return clazz.cast(o.getValue());
+					}
+				}
+				return null;
+			}
+
+			public <T> T getOneValue(Map<Position, Object> map, Class<T> clazz, String color) {
+				for (Map.Entry<Position, Object> o : map.entrySet()) {
+					if (o != null && o.getValue().getClass() == clazz && o.getValue().toString() == color) {
+						return clazz.cast(o.getValue());
+					}
+				}
+				return null;
+			}
+
+			public <T> T getOne(Collection<?> arrayList, Class<T> clazz) {
+				for (Object o : arrayList) {
+					if (o != null && o.getClass() == clazz) {
+						return clazz.cast(o);
+					}
+				}
+				return null;
+			}
+
+			public boolean isNext(Position source, Position target) {
+				return (((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() + 1))
+						|| ((source.getCoordX() == target.getCoordX() + 1) && (source.getCoordY() == target.getCoordY()))
+						|| ((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() - 1)) || ((source.getCoordX() == target
+						.getCoordX() - 1) && (source.getCoordY() == target.getCoordY())));
+			}
+
+			public boolean getObjectsAround(Position source, Position target) {
+				return (((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() + 1))
+						|| ((source.getCoordX() == target.getCoordX() + 1) && (source.getCoordY() == target.getCoordY()))
+						|| ((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() - 1)) || ((source.getCoordX() == target
+						.getCoordX() - 1) && (source.getCoordY() == target.getCoordY())));
+			}
+
 			@Override
 			protected Decision make_decision() {
 				return new Decision() {
@@ -153,13 +158,60 @@ public class EcoRobotImpl extends EcoRobot {
 							@Override
 							public void execute() {
 								requires().perception().execute();
-								// décider et setter un enum d'action sur lequel
-								// action se basera ?
+
+								// si on a une boite
+								if (robotState.getColorBox() != null) {
+									String color = robotState.getColorBox().toString();
+									// si le nid est à côté
+									if (isNext(robotState.getCurrentPosition(), nests.get(Colors.valueOf(color)))) {
+										// POSER dans le nid
+										actionDecided = ActionDecided.DROP;
+										targetPosition = nests.get(Colors.valueOf(color));
+									} else {
+										// sinon
+										// MOVE aller vers le nid
+										actionDecided = ActionDecided.MOVE;
+										targetPosition = nests.get(Colors.valueOf(color));
+									}
+								} else {
+									// sinon
+									// si boite de même couleur juste à côté
+									if (getOneValue(lookAroundOne, ColorBox.class, robotState.getRobotColor().toString()) != null) {
+										// TAKE prendre la boite
+										actionDecided = ActionDecided.TAKE;
+										targetPosition = getOneKey(lookAroundOne, ColorBox.class, robotState.getRobotColor().toString());
+									} else {
+										// sinon
+										// s'il y a une boite de la même couleur dans la vue
+										if (getOneValue(lookAround, ColorBox.class, robotState.getRobotColor().toString()) != null) {
+											// MOVE se diriger vers celle ci
+											actionDecided = ActionDecided.MOVE;
+											targetPosition = getOneKey(lookAround, ColorBox.class, robotState.getRobotColor().toString());
+										} else // sinon s'il y a une boite juste à côté
+										if (getOneValue(lookAroundOne, ColorBox.class) != null) {
+											// TAKE la prendre
+											actionDecided = ActionDecided.TAKE;
+											targetPosition = getOneKey(lookAroundOne, ColorBox.class);
+										} else
+										// sinon s'il y a une boite dans la vue
+										if (getOneValue(lookAround, ColorBox.class) != null) {
+											// MOVE se diriger vers celle ci
+											actionDecided = ActionDecided.MOVE;
+											targetPosition = getOneKey(lookAround, ColorBox.class);
+										} else {
+											// sinon
+											// MOVE aléatoirement
+											actionDecided = ActionDecided.MOVE;
+											targetPosition = new Position(0, 0);
+										}
+
+									}
+								}
+
 								requires().action().execute();
 							}
 						};
 					}
-
 				};
 			}
 
@@ -173,8 +225,35 @@ public class EcoRobotImpl extends EcoRobot {
 
 							@Override
 							public void execute() {
-								// Obtenir la décision dans une variable ...
-								// Action
+
+								switch (actionDecided) {
+								case TAKE:
+									try {
+										requires().envInteraction().takeColorBox(targetPosition);
+									} catch (EmptyGridBoxException | NotABoxException | ServiceUnavailableException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								case DROP:
+									float energyReceived = 0;
+									try {
+										energyReceived = requires().envInteraction().dropColorBox(robotState);
+									} catch (ServiceUnavailableException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+									robotState.increaseEnergy(energyReceived);
+								case MOVE:
+									try {
+										System.out.println("Moving from " + robotState.getCurrentPosition() + " to : " + targetPosition);
+										requires().envInteraction().move(robotState.getCurrentPosition(), targetPosition);
+										robotState.updatePosition(targetPosition);
+									} catch (NonEmptyGridBoxException | sma.common.pojo.exceptions.InvalidPositionException
+											| ServiceUnavailableException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+								}
 							}
 						};
 					}
@@ -187,13 +266,20 @@ public class EcoRobotImpl extends EcoRobot {
 				return new IExecute() {
 					@Override
 					public void execute() {
-						System.out.println("Exécution du robot");
-						// parts().perception().perceive().execute();
-						parts().decision().decide().execute();
-						// parts().action().act().execute();
+						while (true) {
+							System.out.println("Exécution du robot");
+							parts().decision().decide().execute();
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
 					}
 				};
 			}
+
 		};
 	}
 
