@@ -67,8 +67,14 @@ public class GridDisplay extends JPanel {
 		}
     }
     
-    public void setRobots(){
-    	
+    public void setRobots(Map<Position, Colors> robotPositions){
+    	System.out.println("robots map: "+robotPositions.size());
+    	for (Entry<Position, Colors> entry : robotPositions.entrySet()) {
+    		Colors color = entry.getValue();
+    		Position pos = entry.getKey();
+			System.out.println("color="+color+", x="+pos.getCoordX()+", y="+pos.getCoordY());
+			setCell(new RobotCell(color), pos.getCoordX(), pos.getCoordY());
+		}
     }
     
     public void setBoxs(Map<ColorBox, List<Position>> boxs){

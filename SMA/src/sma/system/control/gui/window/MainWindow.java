@@ -28,8 +28,8 @@ public class MainWindow extends JFrame {
     	gridDisplay.setNests(nests);
     }
     
-    public void setRobots(){
-    	gridDisplay.setRobots();
+    public void setRobots(Map<Position, Colors> robotPositions){
+    	gridDisplay.setRobots(robotPositions);
     }
     
     public void setBoxs(Map<ColorBox, List<Position>> boxs){

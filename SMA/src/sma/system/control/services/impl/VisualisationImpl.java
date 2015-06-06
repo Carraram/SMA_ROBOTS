@@ -48,8 +48,10 @@ public class VisualisationImpl extends Visualisation {
                 int width = requires().envDisplayService().getEnvironmentState().getGridWidth();
 				int height = requires().envDisplayService().getEnvironmentState().getGridHeight();
 				window = new MainWindow(width, height);
+				window.setRobots(requires().agentDisplayService().getRobotsPositions());
 				window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
 				window.setBoxs(requires().envDisplayService().getEnvironmentState().getAllBoxes());
+				
 				window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				window.addWindowListener(new WindowAdapter() {
 			        @Override
