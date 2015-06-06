@@ -26,4 +26,9 @@ public interface IAgentOperations extends IAgentReadOnly {
 	 * @param takeColorBox Nouvelle boite
 	 */
 	void setColorBox(ColorBox takeColorBox);
+
+	/**
+	 * Baisse l'énergie du robot de 1 pour une action
+	 */
+	void decreaseEnergy();
 }

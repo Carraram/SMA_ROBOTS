@@ -100,4 +100,9 @@ public class RobotState implements IAgentOperations {
 	public void setColorBox(ColorBox newColorBox) {
 		colorBox = newColorBox;
 	}
+
+	@Override
+	public void decreaseEnergy() {
+		energyLevel--;
+	}
 }

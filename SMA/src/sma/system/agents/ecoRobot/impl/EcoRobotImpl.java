@@ -186,6 +186,8 @@ public class EcoRobotImpl extends EcoRobot {
 							public void execute() {
 								requires().perception().execute();
 
+								System.out.println("Niveau d'énergie : " + robotState.getCurrentEnergyLevel());
+								
 								// si on a une boite
 								if (robotState.getColorBox() != null) {
 									String color = robotState.getColorBox().toString();
@@ -258,30 +260,35 @@ public class EcoRobotImpl extends EcoRobot {
 								case TAKE:
 									try {
 										robotState.setColorBox(requires().envInteraction().takeColorBox(targetPosition));
+										robotState.decreaseEnergy();
 									} catch (EmptyGridBoxException | NotABoxException | ServiceUnavailableException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
+									break;
 								case DROP:
 									float energyReceived = 0;
 									try {
 										energyReceived = requires().envInteraction().dropColorBox(robotState);
+										robotState.increaseEnergy(energyReceived);
+										robotState.setColorBox(null);
+										robotState.decreaseEnergy();
 									} catch (ServiceUnavailableException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
-									robotState.increaseEnergy(energyReceived);
+
+									break;
 								case MOVE:
 									try {
 										System.out.println("Moving from " + robotState.getCurrentPosition() + " to : " + targetPosition);
 										targetPosition = getDirection(robotState.getCurrentPosition(), targetPosition);
 										requires().envInteraction().move(robotState.getCurrentPosition(), targetPosition);
 										robotState.updatePosition(targetPosition);
+										robotState.decreaseEnergy();
 									} catch (NonEmptyGridBoxException | sma.common.pojo.exceptions.InvalidPositionException
 											| ServiceUnavailableException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
+									break;
 								}
 							}
 						};
