@@ -6,6 +6,9 @@ import sma.common.pojo.Colors;
 import sma.system.control.gui.cell.Cell;
 import sma.system.environment.pojo.ColorBox;
 
+/**
+ * Case d'une boite
+ */
 public class BoxCell extends Cell{
 	public BoxCell(ColorBox color) {
 		if(color == ColorBox.BLUE){

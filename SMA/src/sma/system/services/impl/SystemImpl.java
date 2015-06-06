@@ -20,12 +20,10 @@ public class SystemImpl extends SMASystem {
     }
 
     protected UserAccess make_manager() {
-        // TODO Auto-generated method stub
         return new UserAccessImpl();
     }
 
 	protected EcoRobotLogged make_agents() {
-		// TODO Auto-generated method stub
 		return new EcoRobotLoggedImpl(new File(System.getProperty("java.io.tmpdir")));
 	}
 

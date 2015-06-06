@@ -12,6 +12,9 @@ import sma.common.pojo.Position;
 import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.pojo.ColorBox;
 
+/**
+ * Fenêtre d'affichage du système
+ */
 public class MainWindow extends JFrame {
 	
 	private GridDisplay gridDisplay;

@@ -6,6 +6,9 @@ import sma.common.pojo.Colors;
 import sma.system.control.gui.cell.Cell;
 import sma.system.environment.pojo.ColorBox;
 
+/**
+ * Case d'un nid
+ */
 public class NestCell extends Cell{
 	public NestCell(Colors color) {
 		if(color == Colors.BLUE){
