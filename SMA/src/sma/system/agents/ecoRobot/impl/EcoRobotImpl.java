@@ -11,6 +11,7 @@ import sma.common.pojo.Position;
 import sma.common.pojo.exceptions.EmptyGridBoxException;
 import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 import sma.common.pojo.exceptions.ServiceUnavailableException;
+import sma.common.services.impl.RandomGeneratorImpl;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
 import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
@@ -29,6 +30,7 @@ import components.agent.ecoRobot.Perception;
 import components.agent.ecoRobot.ReusableJoiningComp;
 import components.agent.ecoRobot.UniversalProvider;
 import components.agent.ecoRobot.ReusableJoiningComp.JoiningEntity;
+import components.common.Generator;
 import components.environment.Environment;
 
 public class EcoRobotImpl extends EcoRobot {
@@ -147,6 +149,31 @@ public class EcoRobotImpl extends EcoRobot {
 						.getCoordX() - 1) && (source.getCoordY() == target.getCoordY())));
 			}
 
+			public Position getDirection(Position currentPosition, Position targetPosition) {
+				int xDirection;
+				int yDirection;
+
+				if (currentPosition.getCoordX() < targetPosition.getCoordX()) {
+					xDirection = 1;
+				} else if (currentPosition.getCoordX() > targetPosition.getCoordX()) {
+					xDirection = -1;
+				} else {
+					xDirection = 0;
+				}
+
+				if (currentPosition.getCoordY() < targetPosition.getCoordY()) {
+					yDirection = 1;
+				} else if (currentPosition.getCoordY() > targetPosition.getCoordY()) {
+					yDirection = -1;
+				} else {
+					yDirection = 0;
+				}
+
+				System.out.println("Calculated position : " + new Position(xDirection, yDirection));
+
+				return new Position(currentPosition.getCoordX() + xDirection, currentPosition.getCoordY() + yDirection);
+			}
+
 			@Override
 			protected Decision make_decision() {
 				return new Decision() {
@@ -202,7 +229,8 @@ public class EcoRobotImpl extends EcoRobot {
 											// sinon
 											// MOVE aléatoirement
 											actionDecided = ActionDecided.MOVE;
-											targetPosition = new Position(0, 0);
+											Position random = eco_parts().randomGenerator().generationService().generatePosition(0, 50, 0, 50, false, false);
+											targetPosition = random;
 										}
 
 									}
@@ -229,7 +257,7 @@ public class EcoRobotImpl extends EcoRobot {
 								switch (actionDecided) {
 								case TAKE:
 									try {
-										requires().envInteraction().takeColorBox(targetPosition);
+										robotState.setColorBox(requires().envInteraction().takeColorBox(targetPosition));
 									} catch (EmptyGridBoxException | NotABoxException | ServiceUnavailableException e) {
 										// TODO Auto-generated catch block
 										e.printStackTrace();
@@ -246,6 +274,7 @@ public class EcoRobotImpl extends EcoRobot {
 								case MOVE:
 									try {
 										System.out.println("Moving from " + robotState.getCurrentPosition() + " to : " + targetPosition);
+										targetPosition = getDirection(robotState.getCurrentPosition(), targetPosition);
 										requires().envInteraction().move(robotState.getCurrentPosition(), targetPosition);
 										robotState.updatePosition(targetPosition);
 									} catch (NonEmptyGridBoxException | sma.common.pojo.exceptions.InvalidPositionException
@@ -307,6 +336,12 @@ public class EcoRobotImpl extends EcoRobot {
 				};
 			}
 		};
+	}
+
+	@Override
+	protected Generator make_randomGenerator() {
+		// TODO Auto-generated method stub
+        return new RandomGeneratorImpl();
 	}
 
 }

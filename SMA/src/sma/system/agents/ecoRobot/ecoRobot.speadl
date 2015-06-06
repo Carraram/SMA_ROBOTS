@@ -19,6 +19,10 @@ import components.environment.Environment
 
 import sma.system.agents.ecoRobotLogged.impl.EcoRobotLoggedImpl
 
+import sma.common.services.interfaces.IGeneration
+
+import components.common.Generator
+
 namespace components.agent.ecoRobot {
 
 	component Perception {
@@ -66,12 +70,15 @@ namespace components.agent.ecoRobot {
 
 		requires elog: ILog
 
+			part randomGenerator: Generator
+
+
 		species Robot(maxEnergy: float, robotColor: Colors, initPosition: Position)
 		{
 
 			use je: rjc.JoiningEntity
 
-//			provides operations: IRobotOperations
+			//			provides operations: IRobotOperations
 			provides status: IRobotStatus
 
 			requires log: ILog
