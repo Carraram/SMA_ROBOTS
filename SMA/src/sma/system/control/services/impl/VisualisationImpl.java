@@ -84,8 +84,6 @@ public class VisualisationImpl extends Visualisation {
 			    });
 				
 				timer.start();
-				
-                // TODO Start agents
             }
 
             @Override

@@ -3,6 +3,9 @@ package sma.system.agents.pojo.interfaces;
 import sma.common.pojo.Position;
 import sma.system.environment.pojo.ColorBox;
 
+/**
+ *	Opérations possibles de l'agebt
+ */
 public interface IAgentOperations extends IAgentReadOnly {
     /**
      * Augmente l'énergie et met la vitesse à jour

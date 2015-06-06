@@ -1,37 +1,30 @@
 package sma.system.agents.ecoRobot.impl;
 
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import sma.common.pojo.Colors;
-import sma.common.pojo.InvalidPositionException;
 import sma.common.pojo.Position;
 import sma.common.pojo.exceptions.EmptyGridBoxException;
 import sma.common.pojo.exceptions.NonEmptyGridBoxException;
 import sma.common.pojo.exceptions.ServiceUnavailableException;
 import sma.common.services.impl.RandomGeneratorImpl;
 import sma.system.agents.ecoRobot.interfaces.IExecute;
-import sma.system.agents.ecoRobot.interfaces.IRobotOperations;
 import sma.system.agents.ecoRobot.interfaces.IRobotStatus;
-import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement;
 import sma.system.agents.pojo.ActionDecided;
 import sma.system.agents.pojo.RobotState;
+import sma.system.agents.pojo.interfaces.IAgentOperations;
 import sma.system.environment.pojo.ColorBox;
 import sma.system.environment.pojo.exceptions.NotABoxException;
 import sma.system.environment.services.interfaces.IInteraction;
-import sma.system.agents.pojo.interfaces.IAgentOperations;
 import sma.system.environment.services.interfaces.IPerception;
+
 import components.agent.ecoRobot.Action;
 import components.agent.ecoRobot.Decision;
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.ecoRobot.Perception;
 import components.agent.ecoRobot.ReusableJoiningComp;
-import components.agent.ecoRobot.UniversalProvider;
-import components.agent.ecoRobot.ReusableJoiningComp.JoiningEntity;
 import components.common.Generator;
-import components.environment.Environment;
 
 public class EcoRobotImpl extends EcoRobot {
 
@@ -77,10 +70,8 @@ public class EcoRobotImpl extends EcoRobot {
 									lookAroundOne = requires().envPerception().lookAround(robotState.getCurrentPosition(), 1);
 									System.out.println("LookAround : " + lookAround);
 								} catch (ServiceUnavailableException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								} catch (sma.common.pojo.exceptions.InvalidPositionException e) {
-									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}
 							}
@@ -187,7 +178,7 @@ public class EcoRobotImpl extends EcoRobot {
 								requires().perception().execute();
 
 								System.out.println("Niveau d'énergie : " + robotState.getCurrentEnergyLevel());
-								
+
 								// si on a une boite
 								if (robotState.getColorBox() != null) {
 									String color = robotState.getColorBox().toString();
@@ -231,7 +222,8 @@ public class EcoRobotImpl extends EcoRobot {
 											// sinon
 											// MOVE aléatoirement
 											actionDecided = ActionDecided.MOVE;
-											Position random = eco_parts().randomGenerator().generationService().generatePosition(0, 50, 0, 50, false, false);
+											Position random = eco_parts().randomGenerator().generationService()
+													.generatePosition(0, 50, 0, 50, false, false);
 											targetPosition = random;
 										}
 
@@ -270,6 +262,7 @@ public class EcoRobotImpl extends EcoRobot {
 									try {
 										energyReceived = requires().envInteraction().dropColorBox(robotState);
 										robotState.increaseEnergy(energyReceived);
+										System.out.println("==> INCREASING ENERGY : " + robotState.getCurrentEnergyLevel());
 										robotState.setColorBox(null);
 										robotState.decreaseEnergy();
 									} catch (ServiceUnavailableException e) {
@@ -302,13 +295,12 @@ public class EcoRobotImpl extends EcoRobot {
 				return new IExecute() {
 					@Override
 					public void execute() {
-						while (true) {
+						while (robotState.getCurrentEnergyLevel() != 0) {
 							System.out.println("Exécution du robot");
 							parts().decision().decide().execute();
 							try {
 								Thread.sleep(1000);
 							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -321,23 +313,19 @@ public class EcoRobotImpl extends EcoRobot {
 
 	@Override
 	protected ReusableJoiningComp make_rjc() {
-		// TODO Auto-generated method stub
 		return new ReusableJoiningComp() {
 
 			@Override
 			protected JoiningEntity make_JoiningEntity() {
-				// TODO Auto-generated method stub
 				return new JoiningEntity() {
 
 					@Override
 					protected IPerception make_joinEnvPerception() {
-						// TODO Auto-generated method stub
 						return eco_requires().universalEnvPerception();
 					}
 
 					@Override
 					protected IInteraction make_joinEnvInteraction() {
-						// TODO Auto-generated method stub
 						return eco_requires().universalEnvInteraction();
 					}
 				};
@@ -347,8 +335,7 @@ public class EcoRobotImpl extends EcoRobot {
 
 	@Override
 	protected Generator make_randomGenerator() {
-		// TODO Auto-generated method stub
-        return new RandomGeneratorImpl();
+		return new RandomGeneratorImpl();
 	}
 
 }

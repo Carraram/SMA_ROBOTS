@@ -33,12 +33,12 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 	}
 
 	@Override
-	protected Logging make_l() {
+	protected Logging make_logging() {
 		return new LoggingImplDirectory(logDir);
 	}
 
 	@Override
-	protected EcoRobot make_b() {
+	protected EcoRobot make_ecoRobot() {
 		return new EcoRobotImpl();
 	}
 
@@ -50,44 +50,37 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 
 	@Override
 	protected ILog make_elog() {
-		Logging.Logger.Component eLogger = parts().l().create().createStandaloneLogger("Eco_Robot");
+		Logging.Logger.Component eLogger = parts().logging().create().createStandaloneLogger("Eco_Robot");
 		return eLogger.log();
 	}
 
 	@Override
 	protected IAgentManagement make_agentManagementService() {
-		// TODO Auto-generated method stub
 		return new IAgentManagement() {
 
 			@Override
 			public void createRobot() {
-				// TODO Auto-generated method stub
 				listRobots.add(newRobotLogged("Test1", 40f, Colors.BLUE, new Position(1, 1)));
 				listRobots.add(newRobotLogged("Test2", 30f, Colors.RED, new Position(1, 2)));
 
 				for (final RobotLogged.Component robot : listRobots) {
 					System.out.println(robot.status().getRobotState());
-					// robot.execute().execute();
 					executor.execute(new Runnable() {
 						@Override
 						public void run() {
 							robot.execute().execute();
+							synchronized (listRobots) {
+								listRobots.remove(robot);
+							}
 						}
 					});
 				}
 			}
 
 			@Override
-			public void getRobots() {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
 			public Map<Position, Colors> getRobotsPositions() {
-				// TODO Auto-generated method stub
 				Map<Position, Colors> robotsPositions = new HashMap<Position, Colors>();
-				for (RobotLogged.Component robot : listRobots){
+				for (RobotLogged.Component robot : listRobots) {
 					robotsPositions.put(robot.status().getRobotState().getCurrentPosition(), robot.status().getRobotState().getRobotColor());
 				}
 				return robotsPositions;
@@ -95,7 +88,6 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 
 			@Override
 			public List<IAgentReadOnly> getRobotsStatuses() {
-				// TODO Auto-generated method stub
 				List<IAgentReadOnly> robotsStatuses = new ArrayList<>();
 				for (RobotLogged.Component robot : listRobots) {
 					robotsStatuses.add(robot.status().getRobotState());

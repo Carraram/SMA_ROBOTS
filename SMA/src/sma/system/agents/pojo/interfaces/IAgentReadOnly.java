@@ -4,6 +4,9 @@ import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
 import sma.system.environment.pojo.ColorBox;
 
+/**
+ * Opérations de l'agent en lecture seule
+ */
 public interface IAgentReadOnly {
     /**
      * Renvoie la boite de couleur transportée par le robot

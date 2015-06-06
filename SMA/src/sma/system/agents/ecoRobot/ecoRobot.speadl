@@ -1,27 +1,11 @@
-
-import sma.system.agents.ecoRobot.interfaces.IRobotOperations
-
-import sma.system.agents.logging.interfaces.ILog
-
-import sma.system.agents.ecoRobot.interfaces.IRobotStatus
-
-import sma.common.pojo.Position
-
-import sma.common.pojo.Colors
-
-import sma.system.environment.services.interfaces.IInteraction
-
-import sma.system.environment.services.interfaces.IPerception
-
-import sma.system.agents.ecoRobot.interfaces.IExecute
-
-import components.environment.Environment
-
-import sma.system.agents.ecoRobotLogged.impl.EcoRobotLoggedImpl
-
-import sma.common.services.interfaces.IGeneration
-
 import components.common.Generator
+import sma.common.pojo.Colors
+import sma.common.pojo.Position
+import sma.system.agents.ecoRobot.interfaces.IExecute
+import sma.system.agents.ecoRobot.interfaces.IRobotStatus
+import sma.system.agents.logging.interfaces.ILog
+import sma.system.environment.services.interfaces.IInteraction
+import sma.system.environment.services.interfaces.IPerception
 
 namespace components.agent.ecoRobot {
 
@@ -41,10 +25,6 @@ namespace components.agent.ecoRobot {
 		requires envInteraction: IInteraction
 	}
 
-	component UniversalProvider {
-		provides env: Environment
-	}
-
 	ecosystem ReusableJoiningComp {
 		requires universalEnvInteraction: IInteraction
 		requires universalEnvPerception: IPerception
@@ -59,29 +39,22 @@ namespace components.agent.ecoRobot {
 
 		requires envLocalInteraction: IInteraction
 		requires envLocalPerception: IPerception
-
-		//		part envProvider: UniversalProvider
-		part rjc: ReusableJoiningComp {
-		//			bind universalEnv to envLocal
-			bind universalEnvInteraction to envLocalInteraction
-			bind universalEnvPerception to envLocalPerception
-
-		}
-
 		requires elog: ILog
 
-			part randomGenerator: Generator
+		part rjc: ReusableJoiningComp {
+			bind universalEnvInteraction to envLocalInteraction
+			bind universalEnvPerception to envLocalPerception
+		}
 
+		part randomGenerator: Generator
 
 		species Robot(maxEnergy: float, robotColor: Colors, initPosition: Position)
 		{
+			provides execute: IExecute
+			provides status: IRobotStatus
+			requires log: ILog
 
 			use je: rjc.JoiningEntity
-
-			//			provides operations: IRobotOperations
-			provides status: IRobotStatus
-
-			requires log: ILog
 
 			part perception: Perception {
 				bind envPerception to je.joinEnvPerception
@@ -95,9 +68,6 @@ namespace components.agent.ecoRobot {
 			part action: Action {
 				bind envInteraction to je.joinEnvInteraction
 			}
-
-			provides execute: IExecute
-
 		}
 	}
 }

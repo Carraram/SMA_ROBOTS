@@ -40,9 +40,6 @@ public class LoggingImplDirectory extends Logging {
 		private PrintWriter logWriter;
 		
 		public LoggerImpl(File logFile) {
-			// if an exception happens, nothing can be done about it
-			// we just let logStream be null and
-			// the operations of logging won't be done
 			try {
 				this.logWriter = new PrintWriter(new FileWriter(logFile), true);
 			} catch (FileNotFoundException e) {

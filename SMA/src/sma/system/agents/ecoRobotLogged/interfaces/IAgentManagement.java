@@ -9,14 +9,21 @@ import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 
 public interface IAgentManagement {
 
+	/**
+	 * Création des robots
+	 */
 	void createRobot();
 	
-	void getRobots();
-	
+	/**
+	 * Retourne une Map Position Couleur de tous les robots
+	 * @return Map Position Couleur de tous les robots
+	 */
 	Map<Position, Colors> getRobotsPositions();
 	
+	/**
+	 * Retourne une liste de tous les états des robots
+	 * @return liste de tous les états des robots
+	 */
 	List<IAgentReadOnly> getRobotsStatuses();
 	
-//	Map<Colors, List<Position>> getRobotsPositions();
-
 }
