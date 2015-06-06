@@ -94,3 +94,4 @@ public class GridDisplay extends JPanel {
 			panel.add(new LandCell());
 		}
     }
+ }
