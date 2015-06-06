@@ -1,12 +1,11 @@
 package components.control;
 
-import sma.system.control.services.interfaces.IAgentManagement;
+import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement;
 import sma.system.control.services.interfaces.IUserOperations;
 import sma.system.environment.services.interfaces.IEnvManagement;
 
 @SuppressWarnings("all")
 public abstract class Visualisation {
-  @SuppressWarnings("all")
   public interface Requires {
     /**
      * This can be called by the implementation to access this required port.
@@ -21,8 +20,9 @@ public abstract class Visualisation {
     public IAgentManagement agentDisplayService();
   }
   
+  public interface Component extends Visualisation.Provides {
+  }
   
-  @SuppressWarnings("all")
   public interface Provides {
     /**
      * This can be called to access the provided port.
@@ -31,18 +31,9 @@ public abstract class Visualisation {
     public IUserOperations userServiceDisplay();
   }
   
-  
-  @SuppressWarnings("all")
-  public interface Component extends Visualisation.Provides {
-  }
-  
-  
-  @SuppressWarnings("all")
   public interface Parts {
   }
   
-  
-  @SuppressWarnings("all")
   public static class ComponentImpl implements Visualisation.Component, Visualisation.Parts {
     private final Visualisation.Requires bridge;
     
@@ -51,20 +42,22 @@ public abstract class Visualisation {
     public void start() {
       this.implementation.start();
       this.implementation.started = true;
-      
     }
     
     protected void initParts() {
       
     }
     
-    protected void initProvidedPorts() {
+    private void init_userServiceDisplay() {
       assert this.userServiceDisplay == null: "This is a bug.";
       this.userServiceDisplay = this.implementation.make_userServiceDisplay();
       if (this.userServiceDisplay == null) {
       	throw new RuntimeException("make_userServiceDisplay() in components.control.Visualisation should not return null.");
       }
-      
+    }
+    
+    protected void initProvidedPorts() {
+      init_userServiceDisplay();
     }
     
     public ComponentImpl(final Visualisation implem, final Visualisation.Requires b, final boolean doInits) {
@@ -81,16 +74,14 @@ public abstract class Visualisation {
       	initParts();
       	initProvidedPorts();
       }
-      
     }
     
     private IUserOperations userServiceDisplay;
     
-    public final IUserOperations userServiceDisplay() {
+    public IUserOperations userServiceDisplay() {
       return this.userServiceDisplay;
     }
   }
-  
   
   /**
    * Used to check that two components are not created from the same implementation,
@@ -102,6 +93,7 @@ public abstract class Visualisation {
   
   /**
    * Used to check that the component is not started by hand.
+   * 
    */
   private boolean started = false;;
   
@@ -116,7 +108,6 @@ public abstract class Visualisation {
     if (!this.init || this.started) {
     	throw new RuntimeException("start() should not be called by hand: to create a new component, use newComponent().");
     }
-    
   }
   
   /**
@@ -129,7 +120,6 @@ public abstract class Visualisation {
     	throw new RuntimeException("provides() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if provides() is needed to initialise the component.");
     }
     return this.selfComponent;
-    
   }
   
   /**
@@ -149,7 +139,6 @@ public abstract class Visualisation {
     	throw new RuntimeException("requires() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if requires() is needed to initialise the component.");
     }
     return this.selfComponent.bridge;
-    
   }
   
   /**
@@ -162,7 +151,6 @@ public abstract class Visualisation {
     	throw new RuntimeException("parts() can't be accessed until a component has been created from this implementation, use start() instead of the constructor if parts() is needed to initialise the component.");
     }
     return this.selfComponent;
-    
   }
   
   /**
@@ -174,11 +162,10 @@ public abstract class Visualisation {
     	throw new RuntimeException("This instance of Visualisation has already been used to create a component, use another one.");
     }
     this.init = true;
-    Visualisation.ComponentImpl comp = new Visualisation.ComponentImpl(this, b, true);
+    Visualisation.ComponentImpl  _comp = new Visualisation.ComponentImpl(this, b, true);
     if (start) {
-    	comp.start();
+    	_comp.start();
     }
-    return comp;
-    
+    return _comp;
   }
 }
