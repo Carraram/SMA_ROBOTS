@@ -35,4 +35,3 @@ public class MainWindow extends JFrame {
     public void setBoxs(Map<ColorBox, List<Position>> boxs){
     	gridDisplay.setBoxs(boxs);
     }
-}

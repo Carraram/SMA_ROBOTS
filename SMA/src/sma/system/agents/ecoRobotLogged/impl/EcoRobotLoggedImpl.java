@@ -87,7 +87,7 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 			public Map<Position, Colors> getRobotsPositions() {
 				// TODO Auto-generated method stub
 				Map<Position, Colors> robotsPositions = new HashMap<Position, Colors>();
-				for (RobotLogged.Component robot : listRobots) {
+				for (RobotLogged.Component robot : listRobots){
 					robotsPositions.put(robot.status().getRobotState().getCurrentPosition(), robot.status().getRobotState().getRobotColor());
 				}
 				return robotsPositions;
