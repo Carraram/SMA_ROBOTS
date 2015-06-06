@@ -7,12 +7,12 @@ import sma.system.control.gui.cell.Cell;
 import sma.system.environment.pojo.ColorBox;
 
 public class RobotBoxCell extends Cell{
-	public RobotBoxCell(Colors color) {
-		if(color == Colors.BLUE){
+	public RobotBoxCell(ColorBox color) {
+		if(color == ColorBox.BLUE){
 			super.setIcon(new ImageIcon("resources/images/robot_box_blue.png"));
-		}else if(color == Colors.RED){
+		}else if(color == ColorBox.RED){
 			super.setIcon(new ImageIcon("resources/images/robot_box_red.png"));
-		}else if(color == Colors.GREEN){
+		}else if(color == ColorBox.GREEN){
 			super.setIcon(new ImageIcon("resources/images/robot_box_green.png"));
 		}
 	}

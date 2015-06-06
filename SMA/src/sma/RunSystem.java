@@ -12,13 +12,13 @@ public class RunSystem {
         SMASystem.Component system = (new SystemImpl()).newComponent();
         System.out.println("Client : Lancement du système");
         system.userService().startSystem();
-        try {
-            Thread.sleep(10*1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Client : Arrêt du système");
-        system.userService().stopSystem();
+//        try {
+//            Thread.sleep(10*1000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        System.out.println("Client : Arrêt du système");
+//        system.userService().stopSystem();
     }
 
 }
