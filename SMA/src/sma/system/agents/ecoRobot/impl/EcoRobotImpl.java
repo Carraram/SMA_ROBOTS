@@ -85,6 +85,15 @@ public class EcoRobotImpl extends EcoRobot {
 				};
 			}
 
+			/**
+			 * Retourne la position du premier objet correspondant
+			 * 
+			 * @param map
+			 *            Map avec les objets à vérifier
+			 * @param clazz
+			 *            Classe que l'on cherche dans la map
+			 * @return Position d'un objet de type clazz dans la map
+			 */
 			public <T> Position getOneKey(Map<Position, Object> map, Class<T> clazz) {
 				for (Map.Entry<Position, Object> o : map.entrySet()) {
 					if (o != null && o.getValue().getClass() == clazz) {
@@ -94,6 +103,17 @@ public class EcoRobotImpl extends EcoRobot {
 				return null;
 			}
 
+			/**
+			 * Retourne la position du premier objet correspondant
+			 * 
+			 * @param map
+			 *            Map avec les objets à vérifier
+			 * @param clazz
+			 *            Classe que l'on cherche dans la map
+			 * @param color
+			 *            Couleur qui doit correspondre
+			 * @return Position d'un objet de type clazz dans la map
+			 */
 			public <T> Position getOneKey(Map<Position, Object> map, Class<T> clazz, String color) {
 				for (Map.Entry<Position, Object> o : map.entrySet()) {
 					if (o != null && o.getValue().getClass() == clazz && o.getValue().toString() == color) {
@@ -103,6 +123,15 @@ public class EcoRobotImpl extends EcoRobot {
 				return null;
 			}
 
+			/**
+			 * Retourne le premier objet correspondant
+			 * 
+			 * @param map
+			 *            Map avec les objets à vérifier
+			 * @param clazz
+			 *            Classe que l'on cherche dans la map
+			 * @return Position d'un objet de type clazz dans la map
+			 */
 			public <T> T getOneValue(Map<Position, Object> map, Class<T> clazz) {
 				for (Map.Entry<Position, Object> o : map.entrySet()) {
 					if (o != null && o.getValue().getClass() == clazz) {
@@ -112,6 +141,17 @@ public class EcoRobotImpl extends EcoRobot {
 				return null;
 			}
 
+			/**
+			 * Retourne le premier objet correspondant
+			 * 
+			 * @param map
+			 *            Map avec les objets à vérifier
+			 * @param clazz
+			 *            Classe que l'on cherche dans la map
+			 * @param color
+			 *            Couleur qui doit correspondre
+			 * @return Position d'un objet de type clazz dans la map
+			 */
 			public <T> T getOneValue(Map<Position, Object> map, Class<T> clazz, String color) {
 				for (Map.Entry<Position, Object> o : map.entrySet()) {
 					if (o != null && o.getValue().getClass() == clazz && o.getValue().toString() == color) {
@@ -121,15 +161,15 @@ public class EcoRobotImpl extends EcoRobot {
 				return null;
 			}
 
-			public <T> T getOne(Collection<?> arrayList, Class<T> clazz) {
-				for (Object o : arrayList) {
-					if (o != null && o.getClass() == clazz) {
-						return clazz.cast(o);
-					}
-				}
-				return null;
-			}
-
+			/**
+			 * Vérifie si une position target est juste à côté d'une position source
+			 * 
+			 * @param source
+			 *            Position source
+			 * @param target
+			 *            Position cible à vérifier
+			 * @return Si une position target est juste à côté d'une position source
+			 */
 			public boolean isNext(Position source, Position target) {
 				return (((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() + 1))
 						|| ((source.getCoordX() == target.getCoordX() + 1) && (source.getCoordY() == target.getCoordY()))
@@ -137,13 +177,15 @@ public class EcoRobotImpl extends EcoRobot {
 						.getCoordX() - 1) && (source.getCoordY() == target.getCoordY())));
 			}
 
-			public boolean getObjectsAround(Position source, Position target) {
-				return (((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() + 1))
-						|| ((source.getCoordX() == target.getCoordX() + 1) && (source.getCoordY() == target.getCoordY()))
-						|| ((source.getCoordX() == target.getCoordX()) && (source.getCoordY() == target.getCoordY() - 1)) || ((source.getCoordX() == target
-						.getCoordX() - 1) && (source.getCoordY() == target.getCoordY())));
-			}
-
+			/**
+			 * Retourne la position près de la currentPosition qui est en direction de la targetPosition éloignée
+			 * 
+			 * @param currentPosition
+			 *            Position actuelle
+			 * @param targetPosition
+			 *            Position cible
+			 * @return Position près de la position actuelle en direction de la position cible
+			 */
 			public Position getDirection(Position currentPosition, Position targetPosition) {
 				int xDirection;
 				int yDirection;
