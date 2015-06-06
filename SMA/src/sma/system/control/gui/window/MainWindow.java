@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.environment.pojo.ColorBox;
 
 public class MainWindow extends JFrame {
@@ -28,8 +29,8 @@ public class MainWindow extends JFrame {
     	gridDisplay.setNests(nests);
     }
     
-    public void setRobots(Map<Position, Colors> robotPositions){
-    	gridDisplay.setRobots(robotPositions);
+    public void setRobots(List<IAgentReadOnly> robots){
+    	gridDisplay.setRobots(robots);
     }
     
     public void setBoxs(Map<ColorBox, List<Position>> boxs){

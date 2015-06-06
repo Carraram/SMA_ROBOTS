@@ -14,6 +14,7 @@ import javax.swing.ScrollPaneConstants;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import sma.system.control.gui.cell.Cell;
 import sma.system.control.gui.cell.impl.BoxCell;
 import sma.system.control.gui.cell.impl.LandCell;
@@ -67,13 +68,16 @@ public class GridDisplay extends JPanel {
 		}
     }
     
-    public void setRobots(Map<Position, Colors> robotPositions){
-    	System.out.println("robots map: "+robotPositions.size());
-    	for (Entry<Position, Colors> entry : robotPositions.entrySet()) {
-    		Colors color = entry.getValue();
-    		Position pos = entry.getKey();
-			System.out.println("color="+color+", x="+pos.getCoordX()+", y="+pos.getCoordY());
-			setCell(new RobotCell(color), pos.getCoordX(), pos.getCoordY());
+    public void setRobots(List<IAgentReadOnly> robots){
+//    	for (Entry<Position, Colors> entry : robotPositions.entrySet()) {
+//    		Colors color = entry.getValue();
+//    		Position pos = entry.getKey();
+//			System.out.println("color="+color+", x="+pos.getCoordX()+", y="+pos.getCoordY());
+    	for(IAgentReadOnly robot : robots){
+    		if(robot.getColorBox()!=null)
+    			setCell(new RobotBoxCell(robot.getColorBox()), robot.getCurrentPosition().getCoordX(), robot.getCurrentPosition().getCoordY());
+    		else
+    			setCell(new RobotCell(robot.getRobotColor()), robot.getCurrentPosition().getCoordX(), robot.getCurrentPosition().getCoordY());
 		}
     }
     

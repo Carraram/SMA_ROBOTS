@@ -48,7 +48,7 @@ public class VisualisationImpl extends Visualisation {
                 int width = requires().envDisplayService().getEnvironmentState().getGridWidth();
 				int height = requires().envDisplayService().getEnvironmentState().getGridHeight();
 				window = new MainWindow(width, height);
-				window.setRobots(requires().agentDisplayService().getRobotsPositions());
+				window.setRobots(requires().agentDisplayService().getRobotsStatuses());
 				window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
 				window.setBoxs(requires().envDisplayService().getEnvironmentState().getAllBoxes());
 				
