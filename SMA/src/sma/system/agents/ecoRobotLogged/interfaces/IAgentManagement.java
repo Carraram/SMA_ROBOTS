@@ -5,6 +5,7 @@ import java.util.Map;
 
 import sma.common.pojo.Colors;
 import sma.common.pojo.Position;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 
 public interface IAgentManagement {
 
@@ -13,6 +14,8 @@ public interface IAgentManagement {
 	void getRobots();
 	
 	Map<Position, Colors> getRobotsPositions();
+	
+	List<IAgentReadOnly> getRobotsStatuses();
 	
 //	Map<Colors, List<Position>> getRobotsPositions();
 

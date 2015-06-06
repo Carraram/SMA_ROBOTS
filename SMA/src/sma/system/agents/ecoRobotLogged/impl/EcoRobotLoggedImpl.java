@@ -14,6 +14,7 @@ import sma.system.agents.ecoRobot.impl.EcoRobotImpl;
 import sma.system.agents.ecoRobotLogged.interfaces.IAgentManagement;
 import sma.system.agents.logging.impl.LoggingImplDirectory;
 import sma.system.agents.logging.interfaces.ILog;
+import sma.system.agents.pojo.interfaces.IAgentReadOnly;
 import components.agent.ecoRobot.EcoRobot;
 import components.agent.ecoRobotLogged.EcoRobotLogged;
 import components.agent.logging.Logging;
@@ -23,10 +24,9 @@ import components.agent.ecoRobotLogged.EcoRobotLogged.RobotLogged.Component;
 public class EcoRobotLoggedImpl extends EcoRobotLogged {
 
 	private final File logDir;
-	private List<RobotLogged.Component> listRobots =
-			new ArrayList<RobotLogged.Component>();
-	
-    private ExecutorService executor = Executors.newCachedThreadPool();
+	private List<RobotLogged.Component> listRobots = new ArrayList<RobotLogged.Component>();
+
+	private ExecutorService executor = Executors.newCachedThreadPool();
 
 	public EcoRobotLoggedImpl(File logDir) {
 		this.logDir = logDir;
@@ -43,17 +43,14 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 	}
 
 	@Override
-	protected RobotLogged make_RobotLogged(String owner,
-			final float maxEnergie, final Colors couleur,
-			final Position positionInitiale) {
+	protected RobotLogged make_RobotLogged(String owner, final float maxEnergie, final Colors couleur, final Position positionInitiale) {
 		return new RobotLogged() {
 		};
 	}
 
 	@Override
 	protected ILog make_elog() {
-		Logging.Logger.Component eLogger = parts().l().create()
-				.createStandaloneLogger("Eco_Robot");
+		Logging.Logger.Component eLogger = parts().l().create().createStandaloneLogger("Eco_Robot");
 		return eLogger.log();
 	}
 
@@ -65,37 +62,45 @@ public class EcoRobotLoggedImpl extends EcoRobotLogged {
 			@Override
 			public void createRobot() {
 				// TODO Auto-generated method stub
-				listRobots.add(newRobotLogged(
-						"Test1", 40f, Colors.BLUE, new Position(1, 1)));
-				listRobots.add(newRobotLogged(
-						"Test2", 30f, Colors.RED, new Position(1, 2)));
-				
-				for (final RobotLogged.Component robot : listRobots){
+				listRobots.add(newRobotLogged("Test1", 40f, Colors.BLUE, new Position(1, 1)));
+				listRobots.add(newRobotLogged("Test2", 30f, Colors.RED, new Position(1, 2)));
+
+				for (final RobotLogged.Component robot : listRobots) {
 					System.out.println(robot.status().getRobotState());
-//					robot.execute().execute();
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                        	robot.execute().execute();
-                        }
-                    });
+					// robot.execute().execute();
+					executor.execute(new Runnable() {
+						@Override
+						public void run() {
+							robot.execute().execute();
+						}
+					});
 				}
 			}
 
 			@Override
 			public void getRobots() {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public Map<Position, Colors> getRobotsPositions() {
 				// TODO Auto-generated method stub
 				Map<Position, Colors> robotsPositions = new HashMap<Position, Colors>();
-				for (RobotLogged.Component robot : listRobots){
+				for (RobotLogged.Component robot : listRobots) {
 					robotsPositions.put(robot.status().getRobotState().getCurrentPosition(), robot.status().getRobotState().getRobotColor());
 				}
 				return robotsPositions;
+			}
+
+			@Override
+			public List<IAgentReadOnly> getRobotsStatuses() {
+				// TODO Auto-generated method stub
+				List<IAgentReadOnly> robotsStatuses = new ArrayList<>();
+				for (RobotLogged.Component robot : listRobots) {
+					robotsStatuses.add(robot.status().getRobotState());
+				}
+				return robotsStatuses;
 			}
 		};
 	}
