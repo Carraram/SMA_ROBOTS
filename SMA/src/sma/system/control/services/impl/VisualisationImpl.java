@@ -1,7 +1,10 @@
 package sma.system.control.services.impl;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.Timer;
 
 import javax.swing.JFrame;
 
@@ -11,6 +14,12 @@ import components.control.Visualisation;
 
 public class VisualisationImpl extends Visualisation {
 	private MainWindow window;
+	private final int DELAY = 1000;
+	private void updateWindow(){
+		window.setRobots(requires().agentDisplayService().getRobotsStatuses());
+		window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
+		window.setBoxs(requires().envDisplayService().getEnvironmentState().getAllBoxes());
+	}
 	
 	@Override
 	protected IUserOperations make_userServiceDisplay() {
@@ -45,12 +54,21 @@ public class VisualisationImpl extends Visualisation {
             @Override
             public void startSystem() {
             	requires().envDisplayService().startEnvironmentExecution();
+				requires().agentDisplayService().createRobot();
                 int width = requires().envDisplayService().getEnvironmentState().getGridWidth();
 				int height = requires().envDisplayService().getEnvironmentState().getGridHeight();
 				window = new MainWindow(width, height);
-				window.setRobots(requires().agentDisplayService().getRobotsStatuses());
-				window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
-				window.setBoxs(requires().envDisplayService().getEnvironmentState().getAllBoxes());
+				
+				  ActionListener taskPerformer = new ActionListener() {
+				      public void actionPerformed(ActionEvent evt) {
+				    	  System.out.println("timer");
+				    	  window.reinitial();
+				    	  window.setRobots(requires().agentDisplayService().getRobotsStatuses());
+						  window.setNests(requires().envDisplayService().getEnvironmentState().getNestsWithPositions());
+						  window.setBoxs(requires().envDisplayService().getEnvironmentState().getAllBoxes());
+				      }
+				  };
+				  final Timer timer = new Timer(DELAY, taskPerformer);
 				
 				window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				window.addWindowListener(new WindowAdapter() {
@@ -58,11 +76,15 @@ public class VisualisationImpl extends Visualisation {
 			        public void windowClosing(WindowEvent event) {
 			        	System.out.println("stop System");
 //			        	stopSystem();
+			        	timer.stop();
 			        	System.out.println("exit");
 			        	window.dispose();
 			            System.exit(0);
 			        }
 			    });
+				
+				timer.start();
+				
                 // TODO Start agents
             }
 

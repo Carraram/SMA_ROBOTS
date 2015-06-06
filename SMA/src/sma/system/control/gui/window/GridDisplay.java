@@ -35,7 +35,7 @@ public class GridDisplay extends JPanel {
 		panel = new JPanel();
 		gridLayout = new GridLayout(y, x);
 		panel.setLayout(gridLayout);
-		initial(x, y);
+		initial();
 		JScrollPane scrollPane = new JScrollPane();
 		
 		scrollPane.add(panel);
@@ -69,10 +69,6 @@ public class GridDisplay extends JPanel {
     }
     
     public void setRobots(List<IAgentReadOnly> robots){
-//    	for (Entry<Position, Colors> entry : robotPositions.entrySet()) {
-//    		Colors color = entry.getValue();
-//    		Position pos = entry.getKey();
-//			System.out.println("color="+color+", x="+pos.getCoordX()+", y="+pos.getCoordY());
     	for(IAgentReadOnly robot : robots){
     		if(robot.getColorBox()!=null)
     			setCell(new RobotBoxCell(robot.getColorBox()), robot.getCurrentPosition().getCoordX(), robot.getCurrentPosition().getCoordY());
@@ -93,8 +89,16 @@ public class GridDisplay extends JPanel {
 		}
     }
     
-    private void initial(int x , int y){
-		for(int i = 0; i< x*y ; i++){
+    public void reinitial(){
+    	for(int i = 0; i< width*height ; i++){
+    		panel.remove(i);
+			panel.add(new LandCell(),i);
+		}
+    	panel.revalidate();
+    }
+    
+    public void initial(){
+		for(int i = 0; i< width*height ; i++){
 			panel.add(new LandCell());
 		}
     }
