@@ -14,6 +14,8 @@ public interface IAgentManagement {
 	
 	Map<Position, Colors> getRobotsPositions();
 	
+	List<IAgentReadOnly> getRobotsStatuses();
+	
 //	Map<Colors, List<Position>> getRobotsPositions();
 
 }
