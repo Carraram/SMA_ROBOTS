@@ -1,6 +1,7 @@
 package sma.system.agents.pojo.interfaces;
 
 import sma.common.pojo.Position;
+import sma.system.environment.pojo.ColorBox;
 
 public interface IAgentOperations extends IAgentReadOnly {
     /**
@@ -19,4 +20,10 @@ public interface IAgentOperations extends IAgentReadOnly {
      * @param newPosition Nouvelle position
      */
     void updatePosition(Position newPosition);
+
+	/**
+	 * Met à jour la boite du robot
+	 * @param takeColorBox Nouvelle boite
+	 */
+	void setColorBox(ColorBox takeColorBox);
 }

@@ -13,6 +13,7 @@ public class RobotState implements IAgentOperations {
 	private float energyLevel;
 	private float speed;
 	private Position position;
+	private ColorBox colorBox;
 	
 	/**
 	 * Crée l'état d'un robot
@@ -26,6 +27,8 @@ public class RobotState implements IAgentOperations {
 		this.color = color;
 		this.position = initPosition;
 		energyLevel = this.maxEnergy;
+		this.colorBox = null;
+		
 		updateSpeed();
 	}
 	
@@ -90,7 +93,11 @@ public class RobotState implements IAgentOperations {
 
     @Override
     public ColorBox getColorBox() {
-        // TODO Auto-generated method stub
-        return null;
+        return colorBox;
     }
+
+	@Override
+	public void setColorBox(ColorBox newColorBox) {
+		colorBox = newColorBox;
+	}
 }
